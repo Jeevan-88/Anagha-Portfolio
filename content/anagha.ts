@@ -1,7 +1,8 @@
 export interface BrandItem {
   id: string;
   name: string;
-  mark: string;
+  mark?: string;
+  logo: string;
   role: string;
   url: string;
   description: string;
@@ -11,6 +12,7 @@ export interface CaseStudy {
   id: string;
   title: string;
   client: string;
+  logo?: string;
   role: string;
   period: string;
   scope: string[];
@@ -212,7 +214,7 @@ export const anaghaContent: AnaghaContent = {
     {
       id: "ana-architects",
       name: "ANA Architects",
-      mark: "ANA",
+      logo: "/assets/logos/ana.png",
       role: "Social Media Management + Content Strategy",
       url: "https://www.instagram.com/teamanapune?stkn=MWdhOWN2eHJ2emlhcg==",
       description: "Architecture & Design Practice: Employee-centred content, project perspective, and social presence.",
@@ -220,7 +222,7 @@ export const anaghaContent: AnaghaContent = {
     {
       id: "neil-momo",
       name: "Neil & Momo",
-      mark: "N&M",
+      logo: "/assets/logos/neilmomo.png",
       role: "Social Media Management + Strategy + Website + Campaigns",
       url: "https://www.instagram.com/neilandmomo?stkn=MXgxaG8yMWZ4bTl6Mw==",
       description: "Botanical Skincare: Content strategy, shoot production, e-commerce web design, and workshop campaigns.",
@@ -228,7 +230,7 @@ export const anaghaContent: AnaghaContent = {
     {
       id: "nemo-essentials",
       name: "NeMo Essentials",
-      mark: "NEMO",
+      logo: "/assets/logos/neilmomo.png",
       role: "Social Media / Content Work",
       url: "https://www.instagram.com/nemo.essentials?stkn=MXNteXJram96a21xeA==",
       description: "Wellness & Daily Rituals: Product storytelling, content calendars, and social asset curation.",
@@ -236,7 +238,7 @@ export const anaghaContent: AnaghaContent = {
     {
       id: "root-cause-podcast",
       name: "Root Cause Podcast",
-      mark: "RCP",
+      logo: "/assets/logos/rootcause.jpg",
       role: "Podcast Coordination + YouTube Management + Content Repurposing",
       url: "https://www.instagram.com/root.cause.podcast?stkn=MXU4dGZndzY3ODY4bw==",
       description: "Health & Integrative Medicine: Repurposing long-form episodes into high-retention short clips.",
@@ -244,7 +246,7 @@ export const anaghaContent: AnaghaContent = {
     {
       id: "neil-momo-youtube",
       name: "Neil & Momo YouTube",
-      mark: "YT",
+      logo: "/assets/logos/neilmomo.png",
       role: "YouTube Management + Long Form Curation",
       url: "https://youtube.com/@neilandmomo?si=wWNbK3ed3mw0-dfy",
       description: "Video Ecosystem: Content management, thumbnail direction, and episode publishing.",
@@ -252,7 +254,7 @@ export const anaghaContent: AnaghaContent = {
     {
       id: "dravyas",
       name: "Dravyas",
-      mark: "DRV",
+      logo: "/assets/logos/dravys.jpg",
       role: "Social Media / Content Management",
       url: "https://www.instagram.com/dravyas.in?stkn=cDY5cmdwMmQxOXF2",
       description: "Ayurvedic & Natural Wellness: Social presence, brand education, and formulation storytelling.",
@@ -260,7 +262,7 @@ export const anaghaContent: AnaghaContent = {
     {
       id: "neil-momo-web",
       name: "Neil & Momo Website",
-      mark: "WEB",
+      logo: "/assets/logos/neilmomo.png",
       role: "Website Design & Development",
       url: "https://www.neilandmomo.com/",
       description: "E-Commerce Experience: Responsive store architecture, skin-type navigation, and ingredient storytelling.",
@@ -272,6 +274,7 @@ export const anaghaContent: AnaghaContent = {
       id: "ana-architects",
       title: "ANA Architects",
       client: "ANA Architects, Pune",
+      logo: "/assets/logos/ana.png",
       role: "Social Media Management & Content Strategy",
       period: "2024 · Current Role",
       scope: [
@@ -325,6 +328,7 @@ export const anaghaContent: AnaghaContent = {
       id: "neil-momo-ecosystem",
       title: "Neil & Momo Ecosystem",
       client: "Neil & Momo, NeMo Essentials, Root Cause",
+      logo: "/assets/logos/neilmomo.png",
       role: "Social Media Manager & Strategist",
       period: "2023 · 2024",
       scope: [

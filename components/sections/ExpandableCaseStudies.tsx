@@ -56,6 +56,17 @@ export default function ExpandableCaseStudies() {
                     <span className="font-mono text-xs text-saffron font-semibold px-2.5 py-1 rounded-full bg-saffron/10 mt-1 sm:mt-0">
                       0{idx + 1}
                     </span>
+                    {study.logo && (
+                      <div className="relative flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-white border border-ink/10 overflow-hidden p-1 shadow-xs">
+                        <Image
+                          src={study.logo}
+                          alt={study.client}
+                          width={36}
+                          height={36}
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                    )}
                     <div>
                       <h3 className="font-display text-2xl sm:text-3xl md:text-4xl font-medium text-ink">
                         {study.title}

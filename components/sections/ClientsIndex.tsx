@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { anaghaContent } from '@/content/anagha';
 import { ArrowUpRight } from 'lucide-react';
 
@@ -36,8 +37,14 @@ export default function ClientsIndex() {
             >
               {/* Brand Mark & Name */}
               <div className="flex items-center space-x-5 md:w-1/3">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-ink text-canvas font-mono text-xs font-bold tracking-wider group-hover:bg-saffron transition-colors duration-300">
-                  {b.mark}
+                <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white border border-ink/10 overflow-hidden shadow-xs p-1.5 transition-all duration-300 group-hover:border-saffron/40 group-hover:scale-105">
+                  <Image
+                    src={b.logo}
+                    alt={b.name}
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-contain"
+                  />
                 </div>
                 <div>
                   <h3 className="font-display text-xl sm:text-2xl font-medium text-ink group-hover:text-saffron transition-colors duration-300">

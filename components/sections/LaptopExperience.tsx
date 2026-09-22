@@ -226,15 +226,15 @@ export default function LaptopExperience() {
         const smoothZoom = zoomProgress * zoomProgress * (3 - 2 * zoomProgress);
 
         const initZ = isMobile ? 3.9 : isTablet ? 3.2 : 2.75;
-        const closeZ = isMobile ? 1.35 : 0.98; // Screen fills view
+        const closeZ = isMobile ? 1.45 : 1.02; // Zooms much closer so screen fills 70-80% of viewport cleanly
         const curZ = THREE.MathUtils.lerp(initZ, closeZ, smoothZoom);
 
         const initY = 0.38;
-        const closeY = 0.18;
+        const closeY = 0.08; // Centers screen directly in viewport
         const curY = THREE.MathUtils.lerp(initY, closeY, smoothZoom);
 
         camera.position.set(0, curY, curZ);
-        camera.lookAt(0, THREE.MathUtils.lerp(0.05, 0.20, smoothZoom), 0);
+        camera.lookAt(0, THREE.MathUtils.lerp(0.05, 0.08, smoothZoom), 0);
       } else {
         camera.position.set(0, 0.38, initialCamZ);
         camera.lookAt(0, 0.05, 0);
@@ -354,15 +354,15 @@ export default function LaptopExperience() {
             style={{ pointerEvents: 'none' }}
           />
 
-          {/* Contextual Overlay: anchored to bottom of viewport so it never obscures the laptop screen */}
+          {/* Contextual Overlay: Positioned on the LEFT SIDE outside the laptop screen */}
           <div
-            className={`absolute bottom-16 left-0 right-0 z-20 mx-auto max-w-7xl w-full px-6 md:px-12 pointer-events-none transition-all duration-700 ${
-              isZoomedIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            className={`absolute left-6 sm:left-10 md:left-12 lg:left-16 top-1/2 -translate-y-1/2 z-20 pointer-events-none transition-all duration-700 ${
+              isZoomedIn ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
             }`}
           >
-            <div className="max-w-md pointer-events-auto bg-black/80 backdrop-blur-md p-5 rounded-2xl border border-white/10 space-y-3">
+            <div className="max-w-[280px] sm:max-w-xs md:max-w-sm pointer-events-auto bg-black/85 backdrop-blur-md p-5 sm:p-6 rounded-2xl border border-white/15 space-y-3 shadow-2xl">
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-saffron">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-saffron font-medium">
                   Real Storefront Walkthrough
                 </span>
                 <span className="text-[11px] font-mono text-white/50">
@@ -370,7 +370,7 @@ export default function LaptopExperience() {
                 </span>
               </div>
 
-              <p className="text-xs text-white/75 leading-relaxed font-light line-clamp-3">
+              <p className="text-xs text-white/75 leading-relaxed font-light">
                 {anaghaContent.webDesign.description}
               </p>
 
