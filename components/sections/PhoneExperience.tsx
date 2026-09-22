@@ -7,10 +7,29 @@ import { ChevronLeft, ChevronRight, ArrowUpRight, Instagram } from 'lucide-react
 
 export default function PhoneExperience() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const prevActiveIndexRef = useRef(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
+  const [isInViewport, setIsInViewport] = useState(false);
 
   const screens = anaghaContent.reels;
+
+  // Viewport intersection observer to pause videos when scrolled out of view
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInViewport(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Track scroll progress through this section
   useEffect(() => {
@@ -28,9 +47,13 @@ export default function PhoneExperience() {
       const p = Math.max(0, Math.min(1, current / totalDist));
       setScrollProgress(p);
 
-      // Map progress to active reel screen when phone is focused (between p = 0.20 and 0.85)
-      if (p >= 0.20 && p < 0.85) {
-        const immersionProgress = (p - 0.20) / 0.65;
+      // Map progress to active reel screen when phone is focused (between p = 0.18 and 0.88)
+      if (p < 0.18) {
+        setActiveScreenIndex(0);
+      } else if (p >= 0.88) {
+        setActiveScreenIndex(screens.length - 1);
+      } else {
+        const immersionProgress = (p - 0.18) / 0.70;
         const screenIdx = Math.min(
           screens.length - 1,
           Math.floor(immersionProgress * screens.length)
@@ -51,6 +74,34 @@ export default function PhoneExperience() {
   const phoneOpacity = Math.max(0, Math.min(1, phoneEntrance * 1.5)) * (1 - phoneExit * 0.9);
   const phoneTranslateY = (1 - phoneEntrance) * 60 + phoneExit * 30;
 
+  // Video playback lifecycle: autoplay active slide, pause inactive, pause when out of view
+  useEffect(() => {
+    const isPhoneVisible = isInViewport && phoneOpacity > 0.15;
+    const isIndexChanged = prevActiveIndexRef.current !== activeScreenIndex;
+    prevActiveIndexRef.current = activeScreenIndex;
+
+    videoRefs.current.forEach((videoEl, idx) => {
+      if (!videoEl) return;
+
+      if (idx === activeScreenIndex && isPhoneVisible) {
+        videoEl.muted = true;
+        if (isIndexChanged) {
+          videoEl.currentTime = 0;
+        }
+        const playPromise = videoEl.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Autoplay catch handler
+          });
+        }
+      } else {
+        if (!videoEl.paused) {
+          videoEl.pause();
+        }
+      }
+    });
+  }, [activeScreenIndex, isInViewport, phoneOpacity]);
+
   // Background cards depth recession
   const cardSpread = phoneEntrance * (1 - phoneExit);
   const cardOpacity = 1 - cardSpread * 0.65;
@@ -61,7 +112,7 @@ export default function PhoneExperience() {
     <section
       id="reels"
       ref={containerRef}
-      className="relative w-full min-h-[280vh] md:min-h-[340vh] bg-canvas drafting-grid"
+      className="relative w-full min-h-[320vh] md:min-h-[400vh] bg-canvas drafting-grid"
     >
       {/* Sticky Viewport Stage */}
       <div className="sticky top-0 h-screen w-full flex flex-col justify-between overflow-hidden px-6 md:px-12 py-8">
@@ -205,22 +256,40 @@ export default function PhoneExperience() {
                   </span>
                 </div>
 
-                {/* Media Presentation: Real Reel Image Preview */}
-                <div className="relative my-auto aspect-[9/13] w-full overflow-hidden rounded-2xl bg-neutral-900 shadow-inner">
-                  <Image
-                    src={currentScreen.thumbnail}
-                    alt={currentScreen.title}
-                    fill
-                    sizes="350px"
-                    className="object-cover transition-transform duration-700 group-hover/reel:scale-105"
-                    priority
-                  />
+                {/* Media Presentation: Real Reel Local MP4 Videos */}
+                <div className="relative my-auto aspect-[9/13] w-full overflow-hidden rounded-2xl bg-neutral-950 shadow-inner">
+                  {screens.map((screen, idx) => {
+                    const isActive = idx === activeScreenIndex;
+                    const isNearby = Math.abs(idx - activeScreenIndex) <= 1;
+
+                    return (
+                      <div
+                        key={screen.id}
+                        className={`absolute inset-0 transition-opacity duration-300 ${
+                          isActive ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
+                        }`}
+                      >
+                        <video
+                          ref={(el) => {
+                            videoRefs.current[idx] = el;
+                          }}
+                          src={screen.video}
+                          poster={screen.thumbnail}
+                          muted
+                          loop
+                          playsInline
+                          preload={isActive ? 'auto' : isNearby ? 'metadata' : 'none'}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    );
+                  })}
 
                   {/* Gradient Overlay for Text Readability */}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                  <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
 
                   {/* Play / Instagram Link Trigger Indicator */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/reel:opacity-100 transition-opacity duration-300 bg-black/30">
+                  <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover/reel:opacity-100 transition-opacity duration-300 bg-black/30">
                     <div className="flex items-center space-x-2 rounded-full bg-white/95 px-3 py-1.5 text-xs font-mono text-ink font-medium shadow-md">
                       <Instagram className="h-3.5 w-3.5 text-saffron" />
                       <span>Open on Instagram</span>
@@ -229,7 +298,7 @@ export default function PhoneExperience() {
                   </div>
 
                   {/* Overlaid Title & Subtitle */}
-                  <div className="absolute bottom-3 left-3 right-3 text-white">
+                  <div className="pointer-events-none absolute bottom-3 left-3 right-3 z-20 text-white">
                     <p className="font-display text-base sm:text-lg font-medium tracking-wide leading-tight">
                       {currentScreen.title}
                     </p>
@@ -261,13 +330,13 @@ export default function PhoneExperience() {
 
         {/* Mobile Interactive Screen Switcher Controls */}
         <div className="mx-auto w-full max-w-7xl flex items-center justify-between pt-2 border-t border-ink/5 text-xs font-mono text-ink/40 z-20">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5 sm:space-x-2">
             {screens.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setActiveScreenIndex(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  activeScreenIndex === i ? 'w-6 bg-saffron' : 'w-2 bg-ink/20'
+                className={`h-1.5 rounded-full shrink-0 transition-all duration-300 ${
+                  activeScreenIndex === i ? 'w-5 sm:w-6 bg-saffron' : 'w-1.5 sm:w-2 bg-ink/20'
                 }`}
                 aria-label={`Go to Reel ${i + 1}`}
               />
