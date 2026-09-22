@@ -12,6 +12,7 @@ export interface CaseStudy {
   id: string;
   title: string;
   client: string;
+  location?: string;
   logo?: string;
   role: string;
   period: string;
@@ -20,6 +21,12 @@ export interface CaseStudy {
   secondaryDescription?: string;
   primaryUrl: string;
   urlLabel: string;
+  heroVisual?: {
+    src: string;
+    video?: string;
+    alt: string;
+    caption?: string;
+  };
   reels?: {
     id: string;
     title: string;
@@ -274,9 +281,10 @@ export const anaghaContent: AnaghaContent = {
     {
       id: "ana-architects",
       title: "ANA Architects",
-      client: "ANA Architects, Pune",
+      client: "ANA Architects",
+      location: "Pune",
       logo: "/assets/logos/ana.png",
-      role: "Social Media Management & Content Strategy",
+      role: "Social Media Management + Content Strategy",
       period: "2024 · Current Role",
       scope: [
         "Content strategy",
@@ -291,6 +299,12 @@ export const anaghaContent: AnaghaContent = {
       secondaryDescription: "For ANA Architects, these reels were created from their annual function, where I captured the event and identified the strongest moments from the speeches. I then curated these into crisp short-form reels, focusing on the most engaging points and key takeaways. The reels performed well in terms of engagement and helped the content reach a wider audience.",
       primaryUrl: "https://www.instagram.com/teamanapune?stkn=MWdhOWN2eHJ2emlhcg==",
       urlLabel: "Visit ANA Instagram Profile",
+      heroVisual: {
+        src: "/assets/projects/ana_reel_1.jpg",
+        video: "/assets/projects/ana_reel_01.mp4",
+        alt: "ANA Architects Work",
+        caption: "Annual function speech curation reel & employee-centred architecture communication",
+      },
       reels: [
         {
           id: "ana-reel-1",
@@ -326,24 +340,30 @@ export const anaghaContent: AnaghaContent = {
       ],
     },
     {
-      id: "neil-momo-ecosystem",
-      title: "Neil & Momo Ecosystem",
-      client: "Neil & Momo, NeMo Essentials, Root Cause",
+      id: "neil-momo",
+      title: "Neil & Momo",
+      client: "Neil & Momo",
+      location: "Pune",
       logo: "/assets/logos/neilmomo.png",
-      role: "Social Media Manager & Strategist",
+      role: "Social Media Management + Strategy + E-Commerce",
       period: "2023 · 2024",
       scope: [
-        "Three distinct brand IPs",
         "Content strategy & monthly calendars",
         "Photoshoots & video production",
-        "Multi-channel publishing (IG, FB, YT)",
-        "Podcast coordination & YouTube flow",
+        "Multi-channel publishing (IG, FB)",
+        "Curiosity-driven script briefs with founder",
         "Website design & development (neilandmomo.com)",
         "End-to-end workshop campaign management",
       ],
-      description: "As a Social Media Manager & Strategist for Neil & Momo, I worked across three key IPs, Neil & Momo, Neil & Momo Essentials and Root Cause Podcast. I built content strategies and calendars, planned content, handled shoots, and managed scheduling and publishing across Instagram, Facebook and YouTube. For Root Cause, I worked as the Podcast Coordinator and YouTube Manager, managing the content flow from long-form podcast episodes to highlights and short-form Reels, identifying key conversations and adapting them for each platform. I also designed and developed the Neil & Momo website and managed workshop campaigns end-to-end, from lead generation and follow-ups to registrations and communication.",
+      description: "For Neil & Momo, I worked as the Social Media Manager & Strategist across brand IPs. I built content strategies and calendars, planned content, handled shoots, and managed scheduling and publishing. I curated content around questions and topics the audience is genuinely curious about, sharing key points and direction for script finalization. I also designed and developed the Neil & Momo e-commerce website and managed workshop campaigns end-to-end.",
       primaryUrl: "https://www.neilandmomo.com/",
       urlLabel: "Explore Neil & Momo Website",
+      heroVisual: {
+        src: "/assets/projects/neil-momo-01.webp",
+        video: "/assets/projects/neil_momo_reel_01.mp4",
+        alt: "Neil & Momo Brand Work",
+        caption: "Botanical soap wrap packaging, visual identity & educational video series",
+      },
       subsections: [
         {
           title: "Neil & Momo Skincare",
@@ -357,17 +377,12 @@ export const anaghaContent: AnaghaContent = {
           description: "Structured content calendars and visual assets focused on daily skincare essentials, product benefits, and ingredient honesty.",
           url: "https://www.instagram.com/nemo.essentials?stkn=MXNteXJram96a21xeA==",
         },
-        {
-          title: "Root Cause Podcast",
-          role: "Podcast Coordinator & YouTube Manager",
-          description: "Managed content flow from full-length podcast recordings to YouTube episodes and short-form Reels, capturing the strongest discussions under 60 seconds.",
-          url: "https://www.instagram.com/root.cause.podcast?stkn=MXU4dGZndzY3ODY4bw==",
-        },
       ],
       deliverables: [
         "Complete responsive e-commerce website designed and developed",
-        "100+ short-form Reels and video assets planned, shot, and edited",
-        "End-to-end workshop marketing campaigns with lead capture and attendee communications",
+        "Artisanal packaging wraps and identity design",
+        "Curiosity-driven video script direction and multi-platform publishing",
+        "End-to-end workshop marketing campaigns with lead capture",
       ],
       visualAssets: [
         {
@@ -389,6 +404,112 @@ export const anaghaContent: AnaghaContent = {
           src: "/assets/projects/walkthrough_frame_20.jpg",
           alt: "Neil & Momo Product Catalog",
           caption: "Product categories and skin-type pathways",
+        },
+      ],
+    },
+    {
+      id: "root-cause-podcast",
+      title: "Root Cause Podcast",
+      client: "Root Cause Podcast",
+      location: "Pune",
+      logo: "/assets/logos/rootcause.jpg",
+      role: "Podcast Coordination + YouTube Management + Content Repurposing",
+      period: "2023 · 2024",
+      scope: [
+        "Podcast coordination & YouTube flow",
+        "Long-form to short-form repurposing",
+        "First 3-second hook formulation",
+        "High-retention reel pacing & subtitles",
+        "Multi-platform publishing",
+      ],
+      description: "For Root Cause, I worked as the Podcast Coordinator and YouTube Manager, managing the content flow from long-form podcast episodes to highlights and short-form Reels, identifying key conversations and adapting them for each platform. The core strategy centered on picking the strongest insights from hour-long episodes and distilling them into crisp clips that deliver key takeaways in under 60 seconds with powerful 3-second attention hooks.",
+      primaryUrl: "https://www.instagram.com/root.cause.podcast?stkn=MXU4dGZndzY3ODY4bw==",
+      urlLabel: "Visit Root Cause on Instagram",
+      heroVisual: {
+        src: "/assets/projects/rc_reel_1.jpg",
+        video: "/assets/projects/root_cause_reel_01.mp4",
+        alt: "Root Cause Podcast Short-Form Content",
+        caption: "Repurposing long-form podcast conversations into high-retention clips under 60s",
+      },
+      reels: [
+        {
+          id: "rc-ex-1",
+          title: "Conversational Insight 01",
+          url: "https://www.instagram.com/reel/DbnkDyuIRg9/?stkn=bmo3ZWkyM2M1cHE0OQ==",
+          thumbnail: "/assets/projects/rc_reel_1.jpg",
+          caption: "High-retention clip under 60 seconds with immediate opening hook.",
+        },
+        {
+          id: "rc-ex-2",
+          title: "Conversational Insight 02",
+          url: "https://www.instagram.com/reel/DU8J2Q2iNEm/?stkn=MXhiZmtwaW43eThubA==",
+          thumbnail: "/assets/projects/rc_reel_2.jpg",
+          caption: "Distilling hour-long medical and wellness insight into a punchy reel.",
+        },
+        {
+          id: "rc-ex-3",
+          title: "Conversational Insight 03",
+          url: "https://www.instagram.com/reel/DUx7xVIiFcy/?stkn=MTQ0MTlodGtzc21y",
+          thumbnail: "/assets/projects/rc_reel_3.jpg",
+          caption: "Audience retention and conversational takeaway extraction.",
+        },
+      ],
+      deliverables: [
+        "Episodic coordination and long-form YouTube distribution",
+        "Subtitled high-retention short-form clips under 60 seconds",
+        "Hook analysis halting feed scroll within the first 3 seconds",
+      ],
+      visualAssets: [
+        {
+          src: "/assets/projects/rc_reel_1.jpg",
+          alt: "Root Cause Reel 01",
+          caption: "High-retention reel thumbnail and visual pacing",
+        },
+        {
+          src: "/assets/projects/rc_reel_2.jpg",
+          alt: "Root Cause Reel 02",
+          caption: "Episodic clip extraction and subtitle styling",
+        },
+        {
+          src: "/assets/projects/rc_reel_3.jpg",
+          alt: "Root Cause Reel 03",
+          caption: "First 3-second hook structure",
+        },
+      ],
+    },
+    {
+      id: "dravyas",
+      title: "Dravyas",
+      client: "Dravyas",
+      location: "India",
+      logo: "/assets/logos/dravys.jpg",
+      role: "Social Media / Content Management",
+      period: "2023 · 2024",
+      scope: [
+        "Social media management",
+        "Formulation & ingredient storytelling",
+        "Educational carousels & reels",
+        "Organic brand presence",
+      ],
+      description: "For Dravyas, I handled social media and content management, creating an educational visual narrative that showcases natural wellness formulations, ingredient integrity, and honest daily rituals aligned with Ayurvedic principles.",
+      primaryUrl: "https://www.instagram.com/dravyas.in?stkn=cDY5cmdwMmQxOXF2",
+      urlLabel: "Visit Dravyas on Instagram",
+      heroVisual: {
+        src: "/assets/projects/campaign-posts-01.webp",
+        video: "/assets/projects/reel_general_01.mp4",
+        alt: "Dravyas Natural Wellness",
+        caption: "Natural formulation identity, ingredient education & brand storytelling",
+      },
+      deliverables: [
+        "Clean, earthy visual aesthetic aligned with Ayurvedic principles",
+        "Ingredient-focused educational carousels and reels",
+        "Consistent brand messaging across organic channels",
+      ],
+      visualAssets: [
+        {
+          src: "/assets/projects/campaign-posts-01.webp",
+          alt: "Dravyas Social Campaign",
+          caption: "Natural wellness formulation storytelling",
         },
       ],
     },
