@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import CustomCursor from '@/components/ui/CustomCursor';
 import Hero from '@/components/sections/Hero';
+import RoomExperience from '@/components/sections/RoomExperience';
 import About from '@/components/sections/About';
 import ClientsIndex from '@/components/sections/ClientsIndex';
 import ExpandableCaseStudies from '@/components/sections/ExpandableCaseStudies';
@@ -66,6 +67,9 @@ export default function Home() {
 
       {/* 01 · Hero: Grand Typographic Particle Masthead into Editorial Stage */}
       <Hero />
+
+      {/* Room: Cinematic 3D Room Experience with Scroll-Driven Camera */}
+      <RoomExperience />
 
       {/* 02 · About: Professional Profile & Grounded ANA Architects Statement */}
       <About />

@@ -649,7 +649,7 @@ export const anaghaContent: AnaghaContent = {
     client: "Neil & Momo",
     role: "Website Design & Development",
     url: "https://www.neilandmomo.com/",
-    videoSrc: "/assets/projects/neil-momo-walkthrough.mp4",
+    videoSrc: "/assets/video/nmwebsite.mp4",
     description: "I designed and developed the official Neil & Momo website (neilandmomo.com), establishing an intuitive e-commerce architecture. The site features category-based product navigation, skin-type recommendation pathways, clean ingredient transparency, and seamless checkout.",
     sectionsShown: [
       "Brand Hero & Botanical Storytelling",

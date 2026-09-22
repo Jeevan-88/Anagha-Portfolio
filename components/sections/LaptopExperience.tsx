@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { Volume2, VolumeX, ArrowUpRight, Play, CheckCircle2 } from 'lucide-react';
+import { Volume2, VolumeX, ArrowUpRight } from 'lucide-react';
 import { anaghaContent } from '@/content/anagha';
 
 export default function LaptopExperience() {
@@ -354,13 +354,13 @@ export default function LaptopExperience() {
             style={{ pointerEvents: 'none' }}
           />
 
-          {/* Contextual Overlays when Camera Zooms into the Screen */}
+          {/* Contextual Overlay: anchored to bottom of viewport so it never obscures the laptop screen */}
           <div
-            className={`relative z-20 mx-auto max-w-7xl w-full px-6 md:px-12 pointer-events-none transition-all duration-700 flex flex-col justify-end pb-8 ${
-              isZoomedIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            className={`absolute bottom-16 left-0 right-0 z-20 mx-auto max-w-7xl w-full px-6 md:px-12 pointer-events-none transition-all duration-700 ${
+              isZoomedIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >
-            <div className="max-w-xl pointer-events-auto bg-black/75 backdrop-blur-md p-6 rounded-2xl border border-white/10 space-y-4">
+            <div className="max-w-md pointer-events-auto bg-black/80 backdrop-blur-md p-5 rounded-2xl border border-white/10 space-y-3">
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <span className="text-[11px] font-mono uppercase tracking-wider text-saffron">
                   Real Storefront Walkthrough
@@ -370,37 +370,22 @@ export default function LaptopExperience() {
                 </span>
               </div>
 
-              <p className="text-xs sm:text-sm text-white/80 leading-relaxed font-light">
+              <p className="text-xs text-white/75 leading-relaxed font-light line-clamp-3">
                 {anaghaContent.webDesign.description}
               </p>
 
-              {/* Sections Demonstrated */}
-              <div className="space-y-1.5 pt-2">
-                <p className="text-[10px] font-mono uppercase tracking-wider text-white/40">
-                  Architecture &amp; Features Shown
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-white/70">
-                  {anaghaContent.webDesign.sectionsShown.slice(0, 4).map((sec, i) => (
-                    <div key={i} className="flex items-center space-x-1.5">
-                      <CheckCircle2 className="h-3 w-3 text-leaf shrink-0" />
-                      <span className="truncate">{sec}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-between">
+              <div className="flex items-center justify-between pt-1">
                 <a
                   href={anaghaContent.webDesign.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center space-x-2 rounded-full bg-saffron px-4 py-1.5 text-xs font-medium text-white hover:bg-saffron/90 transition-colors"
                 >
-                  <span>Launch Live E-Commerce Store</span>
+                  <span>Visit Live Store</span>
                   <ArrowUpRight className="h-3 w-3" />
                 </a>
                 <span className="text-[10px] font-mono text-white/40">
-                  Scroll down to continue
+                  Scroll to continue
                 </span>
               </div>
             </div>
