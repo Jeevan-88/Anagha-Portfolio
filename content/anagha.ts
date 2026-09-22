@@ -65,6 +65,7 @@ export interface StrategyItem {
     title: string;
     url: string;
     thumbnail: string;
+    video?: string;
   }[];
 }
 
@@ -546,18 +547,21 @@ export const anaghaContent: AnaghaContent = {
           title: "Conversational Insight 01",
           url: "https://www.instagram.com/reel/DbnkDyuIRg9/?stkn=bmo3ZWkyM2M1cHE0OQ==",
           thumbnail: "/assets/projects/rc_reel_1.jpg",
+          video: "/assets/projects/root_cause_reel_01.mp4",
         },
         {
           id: "rc-ex-2",
           title: "Conversational Insight 02",
           url: "https://www.instagram.com/reel/DU8J2Q2iNEm/?stkn=MXhiZmtwaW43eThubA==",
           thumbnail: "/assets/projects/rc_reel_2.jpg",
+          video: "/assets/projects/root_cause_reel_02.mp4",
         },
         {
           id: "rc-ex-3",
           title: "Conversational Insight 03",
           url: "https://www.instagram.com/reel/DUx7xVIiFcy/?stkn=MTQ0MTlodGtzc21y",
           thumbnail: "/assets/projects/rc_reel_3.jpg",
+          video: "/assets/projects/root_cause_reel_03.mp4",
         },
       ],
     },
@@ -578,12 +582,14 @@ export const anaghaContent: AnaghaContent = {
           title: "Curiosity Topic 01",
           url: "https://www.instagram.com/reel/DaXvmAgNZ_d/?stkn=MXhpMTlnd3A0a2NvOQ==",
           thumbnail: "/assets/projects/nm_strat_1.jpg",
+          video: "/assets/projects/neil_momo_reel_01.mp4",
         },
         {
           id: "nm-ex-2",
           title: "Curiosity Topic 02",
           url: "https://www.instagram.com/reel/DHI9Ax1NNDZ/?stkn=cHM2ODUwNHVneGp3",
           thumbnail: "/assets/projects/nm_strat_2.jpg",
+          video: "/assets/projects/neil_momo_reel_02.mp4",
         },
       ],
     },
@@ -604,6 +610,7 @@ export const anaghaContent: AnaghaContent = {
           title: "Dravyas Official Social Archive",
           url: "https://www.instagram.com/dravyas.in?stkn=cDY5cmdwMmQxOXF2",
           thumbnail: "/assets/projects/campaign-posts-01.webp",
+          video: "/assets/projects/reel_general_01.mp4",
         },
       ],
     },
@@ -703,7 +710,7 @@ export const anaghaContent: AnaghaContent = {
       name: "Adobe Premiere Pro",
       category: "Video Editing",
       role: "Long-form editing, pacing, sound synchronization, and colour correction.",
-      icon: "/assets/tools/tool-ae.svg",
+      icon: "/assets/tools/tool-pr.svg",
     },
     {
       name: "Adobe After Effects",

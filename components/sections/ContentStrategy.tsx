@@ -1,9 +1,104 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { anaghaContent } from '@/content/anagha';
-import { ArrowUpRight, Play, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
+
+function PillarVideoCard({
+  ex,
+}: {
+  ex: {
+    id: string;
+    title: string;
+    url: string;
+    thumbnail: string;
+    video?: string;
+  };
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cardRef = useRef<HTMLAnchorElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting && entry.intersectionRatio >= 0.35);
+      },
+      { threshold: [0.1, 0.35, 0.6] }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (!vid) return;
+
+    if (isVisible) {
+      vid.muted = true;
+      const playPromise = vid.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {});
+      }
+    } else {
+      if (!vid.paused) {
+        vid.pause();
+      }
+    }
+  }, [isVisible]);
+
+  return (
+    <a
+      ref={cardRef}
+      href={ex.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-neutral-900 border border-ink/15 shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-all duration-300 hover:border-ink/30 hover:shadow-lg focus:outline-none"
+    >
+      {/* 9:16 Vertical Video Frame matching Reels language */}
+      <div className="relative aspect-[9/15] w-full overflow-hidden bg-neutral-950">
+        {ex.video ? (
+          <video
+            ref={videoRef}
+            src={ex.video}
+            poster={ex.thumbnail}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <Image
+            src={ex.thumbnail}
+            alt={ex.title}
+            fill
+            sizes="(max-width: 768px) 100vw, 360px"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        )}
+
+        {/* Subtle cinematic gradient overlay for readable title */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+
+        {/* Editorial Title Overlay at bottom */}
+        <div className="pointer-events-none absolute bottom-3 left-3 right-3 z-10 text-white flex items-end justify-between">
+          <p className="font-display text-sm sm:text-base font-medium leading-snug line-clamp-2 group-hover:text-saffron transition-colors">
+            {ex.title}
+          </p>
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/15 backdrop-blur-xs text-white/80 group-hover:bg-saffron group-hover:text-white transition-colors ml-2">
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </div>
+        </div>
+      </div>
+    </a>
+  );
+}
 
 export default function ContentStrategy() {
   return (
@@ -66,39 +161,14 @@ export default function ContentStrategy() {
                 </p>
               </div>
 
-              {/* Concrete Examples Grid */}
-              <div className="space-y-3">
+              {/* Concrete Examples: Clean Vertical Video Presentation */}
+              <div className="space-y-4">
                 <p className="text-xs font-mono uppercase tracking-wider text-ink/40">
                   Applied Reel &amp; Strategy Examples
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl">
                   {strat.examples.map((ex) => (
-                    <a
-                      key={ex.id}
-                      href={ex.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex flex-col justify-between p-3.5 rounded-xl bg-white border border-ink/10 transition-all hover:border-ink/30 hover:shadow-xs"
-                    >
-                      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-black/5 mb-3">
-                        <Image
-                          src={ex.thumbnail}
-                          alt={ex.title}
-                          fill
-                          sizes="280px"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-colors">
-                          <Play className="h-5 w-5 text-white fill-white" />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between text-xs font-mono text-ink/80 pt-1">
-                        <span className="truncate group-hover:text-saffron transition-colors">
-                          {ex.title}
-                        </span>
-                        <ArrowUpRight className="h-3.5 w-3.5 text-ink/40 group-hover:text-ink shrink-0 ml-1" />
-                      </div>
-                    </a>
+                    <PillarVideoCard key={ex.id} ex={ex} />
                   ))}
                 </div>
               </div>
