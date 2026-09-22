@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --color-canvas: #FBF9F5;
+  --color-canvas-subtle: #F3EFE9;
+  --color-ink: #141312;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #FBF9F5;
+  color: #141312;
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ultra-quiet architectural drafting grid: felt rather than noticed */
+.drafting-grid {
+  background-size: 56px 56px;
+  background-image: 
+    linear-gradient(to right, rgba(20, 19, 18, 0.018) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 19, 18, 0.018) 1px, transparent 1px);
+}
+
+.drafting-grid-dense {
+  background-size: 28px 28px;
+  background-image: 
+    linear-gradient(to right, rgba(20, 19, 18, 0.014) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 19, 18, 0.014) 1px, transparent 1px);
+}
+
+/* Tactile paper noise overlay */
+.paper-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+}
+
+/* Selection aesthetics */
+::selection {
+  background-color: #D06B29;
+  color: #FFFFFF;
+}
+
+/* Hide native scrollbar for horizontal rail while preserving scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 3D Perspective container for phone & flashcard scene */
+.perspective-container {
+  perspective: 1200px;
+  perspective-origin: center center;
+}
