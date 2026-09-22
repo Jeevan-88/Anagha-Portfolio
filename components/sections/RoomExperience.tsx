@@ -18,18 +18,15 @@ export default function RoomExperience() {
 
     const isMobile = window.innerWidth < 768;
 
-    // Scene
+    // 1. Scene with pitch-black cinematic background
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xfbf9f5);
+    scene.background = new THREE.Color(0x050505);
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.01, 100);
-    const initialPos = new THREE.Vector3(2.8, 2.6, 2.8);
-    const initialLookAt = new THREE.Vector3(0.4, 0.5, 0);
-    camera.position.copy(initialPos);
-    camera.lookAt(initialLookAt);
+    // 2. Camera setup
+    const fov = isMobile ? 48 : 38;
+    const camera = new THREE.PerspectiveCamera(fov, width / height, 0.05, 100);
 
-    // Renderer
+    // 3. Renderer with high dynamic range feel and cinematic tone mapping
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: false,
@@ -39,29 +36,34 @@ export default function RoomExperience() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.25;
     canvasContainer.appendChild(renderer.domElement);
 
-    // Lighting: warm ambient matching the portfolio palette
-    const ambient = new THREE.AmbientLight(0xfff5ea, 1.4);
+    // 4. Dramatic, Atmospheric Cinematic Lighting for Black Backdrop
+    // Ambient light - keep subtle and moody so black surroundings look rich
+    const ambient = new THREE.AmbientLight(0xf5eedc, 1.1);
     scene.add(ambient);
 
-    // Overhead directional
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
-    dirLight.position.set(2, 4, 2);
-    scene.add(dirLight);
+    // Key directional light creating soft shadows across furniture
+    const keyLight = new THREE.DirectionalLight(0xfff6ea, 2.2);
+    keyLight.position.set(2.5, 4.5, 3.5);
+    scene.add(keyLight);
 
-    // Warm fill from front
-    const warmFill = new THREE.DirectionalLight(0xce6b33, 0.4);
-    warmFill.position.set(-1, 2, 3);
+    // Warm moody fill light
+    const warmFill = new THREE.DirectionalLight(0xce6b33, 0.7);
+    warmFill.position.set(-3.0, 2.0, 2.0);
     scene.add(warmFill);
 
-    // Point light near TV that intensifies as camera approaches
-    const tvLight = new THREE.PointLight(0xce6b33, 0, 4);
-    tvLight.position.set(0.4, 1.0, 0.4);
-    scene.add(tvLight);
+    // Rim light to separate the edges of the room and TV from the black void
+    const rimLight = new THREE.DirectionalLight(0x6080a0, 0.9);
+    rimLight.position.set(1.0, 3.0, -3.0);
+    scene.add(rimLight);
 
-    // Video element for TV screen
+    // Dynamic TV phosphor point light casting amber/cyan glow
+    const tvGlowLight = new THREE.PointLight(0xffecd0, 0.2, 5);
+    scene.add(tvGlowLight);
+
+    // 5. Video Element setup (exact requested file)
     const video = document.createElement('video');
     video.src = '/assets/projects/WhatsApp Video 2026-09-22 at 2.00.15 PM.mp4';
     video.crossOrigin = 'anonymous';
@@ -75,59 +77,109 @@ export default function RoomExperience() {
     videoTexture.minFilter = THREE.LinearFilter;
     videoTexture.magFilter = THREE.LinearFilter;
 
-    // TV screen plane material
+    // Dedicated material strictly clipped to the screen surface
     const screenMaterial = new THREE.MeshBasicMaterial({
       map: videoTexture,
       side: THREE.FrontSide,
     });
 
-    // TV screen plane geometry: positioned at the front face of the TV mesh
-    // Screen quad vertices from GLB inspection:
-    //   BL: (0.2071, 0.7189, 0.1384)  BR: (0.6093, 0.7189, 0.1384)
-    //   TL: (0.2071, 1.0529, 0.1384)  TR: (0.6093, 1.0529, 0.1384)
-    const screenWidth = 0.6093 - 0.2071;   // 0.4022
-    const screenHeight = 1.0529 - 0.7189;  // 0.334
-    const screenCenterX = (0.2071 + 0.6093) / 2; // 0.4082
-    const screenCenterY = (0.7189 + 1.0529) / 2; // 0.8859
-    const screenZ = 0.1384 + 0.002; // slightly in front
+    // 6. Model & Screen Plane Nodes
+    const roomRoot = new THREE.Group();
+    scene.add(roomRoot);
 
-    const screenGeom = new THREE.PlaneGeometry(screenWidth, screenHeight);
-    const screenMesh = new THREE.Mesh(screenGeom, screenMaterial);
-    screenMesh.position.set(screenCenterX, screenCenterY, screenZ);
+    // We create the screen plane inside roomRoot so all scale and positions match the room exactly!
+    // The screen face coordinates from GLB vertex analysis:
+    // Screen quad bounded by v51 (left=0.2071, bottom=0.7189) to v53 (right=0.6093, top=1.0529), z = 0.1384
+    // Screen dimensions: width = 0.4022, height = 0.3340
+    // Screen center: x = 0.4082, y = 0.8859, z = 0.1386
+    const screenWidth = 0.4022;
+    const screenHeight = 0.3340;
+    const screenCenter = new THREE.Vector3(0.4082, 0.8859, 0.1390);
 
-    // Load GLB
+    const screenGeometry = new THREE.PlaneGeometry(screenWidth, screenHeight);
+    const screenMesh = new THREE.Mesh(screenGeometry, screenMaterial);
+    screenMesh.position.copy(screenCenter);
+    roomRoot.add(screenMesh);
+
+    // Target vectors in World coordinates
+    let targetWorldLookAt = new THREE.Vector3();
+    let camStartPos = new THREE.Vector3();
+    let camEndPos = new THREE.Vector3();
+    let isSceneReady = false;
+
+    // 7. Load GLB Room Model
     const loader = new GLTFLoader();
     loader.load(
       '/assets/models/pokemon_firered_-_players_room.glb',
       (gltf) => {
         const model = gltf.scene;
 
-        // Center and scale the model for good framing
+        // Clean up any unlit shader quirks and ensure double-sided room rendering
+        model.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.castShadow = false;
+            child.receiveShadow = false;
+            if (child.material) {
+              child.material.side = THREE.DoubleSide;
+            }
+          }
+        });
+
+        // Center the room at origin
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const scale = isMobile ? 1.6 / maxDim : 2.0 / maxDim;
+        model.position.set(-center.x, -center.y, -center.z);
 
-        model.scale.setScalar(scale);
-        model.position.set(
-          -center.x * scale,
-          -center.y * scale + 0.1,
-          -center.z * scale
-        );
-
-        // Scale and reposition the screen plane to match
+        // Adjust screen mesh position relative to room center
         screenMesh.position.set(
-          (screenCenterX - center.x) * scale,
-          (screenCenterY - center.y) * scale + 0.1,
-          (screenZ - center.z) * scale
+          screenCenter.x - center.x,
+          screenCenter.y - center.y,
+          screenCenter.z - center.z
         );
-        screenMesh.scale.setScalar(scale);
 
-        scene.add(model);
-        scene.add(screenMesh);
+        roomRoot.add(model);
 
+        // Calculate world position of TV screen center
+        screenMesh.getWorldPosition(targetWorldLookAt);
+
+        // Position dynamic point light right in front of the screen
+        tvGlowLight.position.set(
+          targetWorldLookAt.x,
+          targetWorldLookAt.y,
+          targetWorldLookAt.z + 0.3
+        );
+
+        // Camera Positions:
+        // Final position (camEndPos):
+        // Directly in front of the TV along the +Z normal axis!
+        // Perfectly centered on X and Y, with Z pulled back so the screen takes 50-70% of viewport.
+        // At fov=38 (vertical rad = ~0.663 rad), screen height of ~0.334 fills 60% of vertical FOV
+        // when distance d ≈ (0.334 / 0.60) / (2 * tan(19 deg)) ≈ 0.556 / 0.688 ≈ 0.81 units.
+        const endDistance = isMobile ? 1.05 : 0.84;
+        camEndPos.set(
+          targetWorldLookAt.x,
+          targetWorldLookAt.y,
+          targetWorldLookAt.z + endDistance
+        );
+
+        // Starting position (camStartPos):
+        // Standing INSIDE the room looking towards the TV/computer.
+        // Slightly elevated and stepped back into the room entrance/stairs threshold.
+        // Facing generally towards the TV, not an extreme diagonal isometric view.
+        camStartPos.set(
+          targetWorldLookAt.x + 0.45,
+          targetWorldLookAt.y + 0.85,
+          targetWorldLookAt.z + 3.4
+        );
+
+        camera.position.copy(camStartPos);
+        camera.lookAt(targetWorldLookAt);
+
+        isSceneReady = true;
         setIsLoaded(true);
+
+        // Start video immediately muted so texture is ready
+        video.play().catch(() => {});
       },
       undefined,
       (err) => {
@@ -135,31 +187,15 @@ export default function RoomExperience() {
       }
     );
 
-    // Camera path keyframes
-    const camStart = new THREE.Vector3(
-      isMobile ? 3.2 : 2.8,
-      isMobile ? 2.8 : 2.6,
-      isMobile ? 3.2 : 2.8
-    );
-    const camMid = new THREE.Vector3(1.2, 1.4, 1.6);
-    const camEnd = new THREE.Vector3(0.15, 0.95, 1.1);
-
-    const lookStart = new THREE.Vector3(0.0, 0.3, 0.0);
-    const lookMid = new THREE.Vector3(0.0, 0.5, 0.0);
-    const lookEnd = new THREE.Vector3(0.0, 0.65, -0.1);
-
-    // Current interpolated values
-    let currentCamPos = camStart.clone();
-    let currentLookAt = lookStart.clone();
-    let currentTvIntensity = 0;
-
-    // Animation loop
+    // 8. Animation Loop driven by Scroll Progress
     let animFrameId: number;
+    const currentCamPos = new THREE.Vector3();
+    const currentLookAt = new THREE.Vector3();
 
     const animate = () => {
       animFrameId = requestAnimationFrame(animate);
 
-      // Read scroll progress directly
+      // Read scroll progress relative to this pinned section
       const container = containerRef.current;
       let sp = 0;
       if (container) {
@@ -170,49 +206,45 @@ export default function RoomExperience() {
         }
       }
 
-      // Camera interpolation across 3 phases
-      let targetPos: THREE.Vector3;
-      let targetLookAt: THREE.Vector3;
+      if (isSceneReady) {
+        // Smooth easing curve (easeInOutCubic)
+        const smoothProgress = sp < 0.5 
+          ? 4 * sp * sp * sp 
+          : 1 - Math.pow(-2 * sp + 2, 3) / 2;
 
-      if (sp < 0.35) {
-        // Phase 1: overview to mid approach
-        const t = sp / 0.35;
-        const smooth = t * t * (3 - 2 * t);
-        targetPos = camStart.clone().lerp(camMid, smooth);
-        targetLookAt = lookStart.clone().lerp(lookMid, smooth);
-      } else if (sp < 0.7) {
-        // Phase 2: mid to TV close-up
-        const t = (sp - 0.35) / 0.35;
-        const smooth = t * t * (3 - 2 * t);
-        targetPos = camMid.clone().lerp(camEnd, smooth);
-        targetLookAt = lookMid.clone().lerp(lookEnd, smooth);
-      } else {
-        // Phase 3: hold at TV close-up
-        targetPos = camEnd.clone();
-        targetLookAt = lookEnd.clone();
-      }
+        // Camera path:
+        // Moves from room overview inside directly to the perfectly straight-on focal distance
+        const targetPos = new THREE.Vector3().lerpVectors(
+          camStartPos,
+          camEndPos,
+          smoothProgress
+        );
 
-      // Smooth damping
-      const dampFactor = 0.08;
-      currentCamPos.lerp(targetPos, dampFactor);
-      currentLookAt.lerp(targetLookAt, dampFactor);
+        // LookAt target:
+        // Always locked precisely onto the screen center throughout the move
+        // As camera approaches straight-on Z axis, the orientation automatically aligns perpendicular to the screen!
+        const targetLook = targetWorldLookAt.clone();
 
-      camera.position.copy(currentCamPos);
-      camera.lookAt(currentLookAt);
+        // High quality lerp for butter-smooth momentum
+        currentCamPos.lerp(targetPos, 0.09);
+        currentLookAt.lerp(targetLook, 0.09);
 
-      // TV light intensifies as camera approaches
-      const targetTvIntensity = sp > 0.25 ? Math.min((sp - 0.25) / 0.3, 1) * 1.5 : 0;
-      currentTvIntensity += (targetTvIntensity - currentTvIntensity) * dampFactor;
-      tvLight.intensity = currentTvIntensity;
+        camera.position.copy(currentCamPos);
+        camera.lookAt(currentLookAt);
 
-      // Video playback control
-      if (sp >= 0.25 && sp <= 0.95) {
-        if (video.paused) {
-          video.play().catch(() => {});
-        }
-      } else {
-        if (!video.paused) {
-          video.pause();
+        // Dynamic TV Screen Glow increases as you approach
+        const glowIntensity = THREE.MathUtils.lerp(0.4, 2.2, smoothProgress);
+        tvGlowLight.intensity = glowIntensity;
+
+        // Manage video play/pause lifecycle
+        if (sp >= 0.02 && sp <= 0.98) {
+          if (video.paused) {
+            video.play().catch(() => {});
+          }
+        } else {
+          if (!video.paused) {
+            video.pause();
+          }
         }
       }
 
@@ -221,7 +253,7 @@ export default function RoomExperience() {
 
     animate();
 
-    // Resize handler
+    // 9. Resize Handling
     const handleResize = () => {
       if (!canvasContainer) return;
       width = canvasContainer.clientWidth;
@@ -233,12 +265,13 @@ export default function RoomExperience() {
 
     window.addEventListener('resize', handleResize);
 
+    // 10. Disposal and Cleanup
     return () => {
       cancelAnimationFrame(animFrameId);
       window.removeEventListener('resize', handleResize);
       renderer.dispose();
       screenMaterial.dispose();
-      screenGeom.dispose();
+      screenGeometry.dispose();
       videoTexture.dispose();
       video.pause();
       video.src = '';
@@ -252,49 +285,43 @@ export default function RoomExperience() {
     <section
       id="room-experience"
       ref={containerRef}
-      className="relative w-full min-h-[300vh] bg-canvas"
+      className="relative w-full min-h-[300vh] bg-[#050505]"
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Editorial Top Label */}
-        <div className="absolute top-0 left-0 right-0 z-20 mx-auto w-full max-w-7xl pt-8 px-6 md:px-12 flex items-end justify-between border-b border-ink/10 pb-4 pointer-events-none">
-          <div>
+      {/* Pinned Cinematic Stage */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#050505]">
+        
+        {/* Subtle, minimal editorial branding header */}
+        <div className="absolute top-0 left-0 right-0 z-20 mx-auto w-full max-w-7xl pt-8 sm:pt-10 px-6 md:px-12 flex items-center justify-between border-b border-white/10 pb-4 pointer-events-none">
+          <div className="flex items-center space-x-3">
             <span className="text-[11px] font-mono uppercase tracking-widest text-saffron">
               Creative Space
             </span>
-            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight text-ink mt-1">
-              Step Inside
-            </h2>
+            <span className="text-white/20">·</span>
+            <span className="text-[11px] font-mono uppercase tracking-widest text-white/50">
+              Interactive Room
+            </span>
           </div>
-          <span className="text-xs font-mono text-ink/35 uppercase hidden sm:block">
-            Scroll to Explore
+          <span className="text-[10px] font-mono uppercase tracking-widest text-white/30 hidden sm:block">
+            Scroll to Navigate
           </span>
         </div>
 
-        {/* Three.js Canvas */}
+        {/* Three.js Canvas Container */}
         <div
           ref={canvasContainerRef}
           className="absolute inset-0 w-full h-full"
         />
 
-        {/* Loading Indicator */}
+        {/* Ambient Loading Veil */}
         {!isLoaded && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-canvas">
-            <div className="flex items-center space-x-3 text-xs font-mono text-ink/40 uppercase tracking-widest">
-              <div className="h-1 w-1 rounded-full bg-saffron animate-pulse" />
-              <span>Loading Room</span>
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#050505]">
+            <div className="flex items-center space-x-3 text-xs font-mono text-white/40 uppercase tracking-widest">
+              <div className="h-1.5 w-1.5 rounded-full bg-saffron animate-pulse" />
+              <span>Initializing Scene</span>
             </div>
           </div>
         )}
 
-        {/* Bottom Hint */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 mx-auto w-full max-w-7xl pb-6 px-6 md:px-12 flex items-center justify-between border-t border-ink/10 pt-4 pointer-events-none">
-          <span className="text-[10px] font-mono text-ink/30 uppercase tracking-wider">
-            Scroll to zoom into the room
-          </span>
-          <span className="text-[10px] font-mono text-ink/30 uppercase tracking-wider hidden sm:block">
-            Pokemon FireRed: Player's Room
-          </span>
-        </div>
       </div>
     </section>
   );
