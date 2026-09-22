@@ -1,175 +1,253 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
-import { anaghaContent, VideoProject } from '@/content/anagha';
-import { Play, ArrowUpRight, Youtube, X } from 'lucide-react';
+import { anaghaContent } from '@/content/anagha';
+import { ArrowUpRight, Youtube, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function VideoEditingArchive() {
-  const [activeVideo, setActiveVideo] = useState<VideoProject | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const prevActiveIndexRef = useRef(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isInViewport, setIsInViewport] = useState(false);
 
-  // Helper to extract YouTube video ID from URL
-  const getYouTubeId = (url: string) => {
-    if (url.includes('youtu.be/')) {
-      return url.split('youtu.be/')[1].split('?')[0];
-    }
-    if (url.includes('/shorts/')) {
-      return url.split('/shorts/')[1].split('?')[0];
-    }
-    const match = url.match(/[?&]v=([^&]+)/);
-    return match ? match[1] : '';
-  };
+  const projects = anaghaContent.videoEditing;
+
+  // Viewport intersection observer to control playback and active status
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInViewport(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Track scroll progress through this section
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const totalDist = rect.height - windowHeight;
+
+      if (totalDist <= 0) return;
+
+      const current = -rect.top;
+      const p = Math.max(0, Math.min(1, current / totalDist));
+      setScrollProgress(p);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Continuous active index calculation based on scroll
+  // Entry buffer: 0.05 to 0.95 gives clean start and end rest states
+  const clampedProgress = Math.max(0, Math.min(1, (scrollProgress - 0.08) / 0.84));
+  const rawIndex = clampedProgress * (projects.length - 1);
+  const activeIndex = Math.min(projects.length - 1, Math.max(0, Math.round(rawIndex)));
+
+  // Autoplay lifecycle: play active video, pause inactive
+  useEffect(() => {
+    const isSectionActive = isInViewport;
+    const isIndexChanged = prevActiveIndexRef.current !== activeIndex;
+    prevActiveIndexRef.current = activeIndex;
+
+    videoRefs.current.forEach((videoEl, idx) => {
+      if (!videoEl) return;
+
+      if (idx === activeIndex && isSectionActive) {
+        videoEl.muted = true;
+        if (isIndexChanged) {
+          videoEl.currentTime = 0;
+        }
+        const playPromise = videoEl.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {});
+        }
+      } else {
+        if (!videoEl.paused) {
+          videoEl.pause();
+        }
+      }
+    });
+  }, [activeIndex, isInViewport]);
+
+  const currentProject = projects[activeIndex];
 
   return (
-    <section id="video-editing" className="relative w-full py-24 md:py-32 px-6 md:px-12 bg-canvas drafting-grid">
-      <div className="mx-auto max-w-7xl">
+    <section
+      id="video-editing"
+      ref={containerRef}
+      className="relative w-full min-h-[350vh] md:min-h-[420vh] bg-canvas drafting-grid"
+    >
+      {/* Pinned Sticky Stage */}
+      <div className="sticky top-0 h-screen w-full flex flex-col justify-between overflow-hidden px-6 md:px-12 py-8 sm:py-10">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 pb-6 border-b border-ink/10">
+        <div className="mx-auto w-full max-w-7xl flex flex-col md:flex-row md:items-end justify-between border-b border-ink/10 pb-4 z-20">
           <div>
-            <span className="text-xs uppercase font-mono tracking-widest text-saffron block mb-2">
+            <span className="text-xs uppercase font-mono tracking-widest text-saffron block mb-1">
               07 · Long-Form Production
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-ink">
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-medium tracking-tight text-ink">
               Video Editing Archive
             </h2>
           </div>
-          <p className="text-xs font-mono text-ink/40 tracking-wider mt-4 md:mt-0 uppercase">
-            Documentary, Campus Life &amp; Season Compilations
-          </p>
+          <div className="flex items-center space-x-3 text-xs font-mono text-ink/40 mt-2 md:mt-0 uppercase">
+            <span>Scroll Down To Browse Stack</span>
+            <span>·</span>
+            <span className="text-saffron font-medium">
+              0{activeIndex + 1} / 0{projects.length}
+            </span>
+          </div>
         </div>
 
-        {/* Video Archive Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {anaghaContent.videoEditing.map((vid) => {
-            const ytId = getYouTubeId(vid.url);
+        {/* ========================================================
+            TRANSLUCENT STACKED VERTICAL SLIDE DECK
+            ======================================================== */}
+        <div className="relative mx-auto my-auto h-[540px] sm:h-[600px] md:h-[640px] w-full max-w-5xl flex items-center justify-center">
+          {projects.map((project, idx) => {
+            // Distance from active scroll focus: offset < 0 is past, offset > 0 is ahead
+            const offset = idx - rawIndex;
+            const absOffset = Math.abs(offset);
+
+            // Is this slide currently in the visible neighborhood?
+            if (absOffset > 2.5) return null;
+
+            // Geometry calculations for realistic physical slide stacking:
+            // Center slide: x=0, scale=1, rotate=0, opacity=1, zIndex=30
+            // Surrounding slides: shifted horizontally, slightly scaled down, rotated, translucent
+            const translateX = offset * 280; // horizontal separation
+            const translateY = Math.min(absOffset * 14, 30); // subtle vertical drop for depth
+            const scale = Math.max(0.78, 1 - absOffset * 0.12);
+            const rotate = offset * 3.8; // subtle tilt angle (-3.8deg / +3.8deg)
+            const opacity = Math.max(0.12, 1 - absOffset * 0.65);
+            const zIndex = Math.round(30 - absOffset * 10);
+            const isCenter = absOffset < 0.45;
 
             return (
               <div
-                key={vid.id}
-                className="group flex flex-col justify-between rounded-2xl bg-white border border-ink/10 p-5 sm:p-6 transition-all duration-300 hover:border-ink/30 hover:shadow-md"
+                key={project.id}
+                className="absolute transition-transform duration-300 ease-out will-change-transform"
+                style={{
+                  transform: `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale}) rotate(${rotate}deg)`,
+                  opacity,
+                  zIndex,
+                }}
               >
-                {/* Media Presentation */}
-                <div className="space-y-4">
-                  <div
-                    onClick={() => setActiveVideo(vid)}
-                    className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-black/5 cursor-pointer"
-                  >
-                    <Image
-                      src={vid.thumbnail}
-                      alt={vid.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 600px"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
+                {/* The Tall Cinematic Vertical Slide Frame */}
+                <div
+                  className={`relative w-[280px] sm:w-[330px] md:w-[370px] h-[480px] sm:h-[540px] md:h-[580px] rounded-[32px] sm:rounded-[40px] overflow-hidden transition-all duration-300 ${
+                    isCenter
+                      ? 'border-2 border-ink/20 bg-black shadow-[0_28px_80px_rgba(0,0,0,0.22)] ring-1 ring-ink/10'
+                      : 'border border-ink/15 bg-white/30 backdrop-blur-md shadow-[0_16px_40px_rgba(0,0,0,0.10)]'
+                  }`}
+                >
+                  {/* Media Content */}
+                  <div className="relative h-full w-full overflow-hidden bg-neutral-950">
+                    {project.video ? (
+                      <video
+                        ref={(el) => {
+                          videoRefs.current[idx] = el;
+                        }}
+                        src={project.video}
+                        poster={project.thumbnail}
+                        muted
+                        loop
+                        playsInline
+                        preload={isCenter ? 'auto' : 'metadata'}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <Image
+                        src={project.thumbnail}
+                        alt={project.title}
+                        fill
+                        sizes="(max-width: 768px) 330px, 370px"
+                        className="h-full w-full object-cover"
+                      />
+                    )}
 
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+                    {/* Editorial Translucent Gradient Overlay */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/10" />
 
-                    {/* Play Button Trigger */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-ink shadow-lg transition-transform duration-300 group-hover:scale-110">
-                        <Play className="h-6 w-6 text-ink fill-ink ml-1" />
-                      </div>
-                    </div>
-
-                    {/* Format Pill */}
-                    <div className="absolute top-3 left-3">
-                      <span className="rounded-full bg-black/60 backdrop-blur-xs px-3 py-1 text-[11px] font-mono text-white">
-                        {vid.format}
+                    {/* Top Tag Bar */}
+                    <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10 text-white">
+                      <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-saffron bg-black/50 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/10">
+                        {project.client}
+                      </span>
+                      <span className="text-[10px] font-mono text-white/60">
+                        0{idx + 1}
                       </span>
                     </div>
-                  </div>
 
-                  {/* Title & Client Context */}
-                  <div>
-                    <span className="text-xs font-mono text-saffron uppercase tracking-wider block mb-1">
-                      {vid.client}
-                    </span>
-                    <h3 className="font-display text-xl sm:text-2xl font-medium text-ink leading-snug">
-                      {vid.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-ink/70 leading-relaxed font-light mt-2">
-                      {vid.context}
-                    </p>
+                    {/* Bottom Editorial Content Info */}
+                    <div className="absolute bottom-4 left-4 right-4 z-10 text-white space-y-2">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-white/60 block">
+                        {project.format}
+                      </span>
+                      <h3 className="font-display text-lg sm:text-xl md:text-2xl font-medium text-white leading-tight">
+                        {project.title}
+                      </h3>
+                      <p className="text-[11px] sm:text-xs text-white/70 font-light leading-relaxed line-clamp-2">
+                        {project.context}
+                      </p>
+
+                      {/* Direct YouTube Link */}
+                      <div className="pt-2">
+                        <a
+                          href={project.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center space-x-1.5 rounded-full bg-white/20 hover:bg-white text-white hover:text-ink px-3 py-1.5 text-[11px] font-mono transition-all duration-300 backdrop-blur-xs border border-white/20"
+                        >
+                          <Youtube className="h-3.5 w-3.5 text-red-500" />
+                          <span>Watch on YouTube</span>
+                          <ArrowUpRight className="h-3 w-3" />
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
-                {/* External Link Action */}
-                <div className="flex items-center justify-between pt-6 mt-6 border-t border-ink/10 text-xs font-mono">
-                  <button
-                    onClick={() => setActiveVideo(vid)}
-                    className="inline-flex items-center space-x-1.5 text-ink hover:text-saffron transition-colors"
-                  >
-                    <Play className="h-3.5 w-3.5 fill-current" />
-                    <span>Watch in Modal</span>
-                  </button>
-
-                  <a
-                    href={vid.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-1.5 text-ink/60 hover:text-ink transition-colors"
-                  >
-                    <Youtube className="h-3.5 w-3.5 text-red-600" />
-                    <span>Open on YouTube</span>
-                    <ArrowUpRight className="h-3 w-3" />
-                  </a>
-                </div>
-
               </div>
             );
           })}
         </div>
 
-        {/* Modal Player */}
-        {activeVideo && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6 animate-fadeIn">
-            <div className="relative w-full max-w-4xl rounded-2xl bg-neutral-900 border border-white/10 overflow-hidden shadow-2xl">
-              
-              {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 text-white">
-                <div>
-                  <p className="text-xs font-mono text-saffron uppercase">{activeVideo.client}</p>
-                  <h4 className="font-display text-lg font-medium">{activeVideo.title}</h4>
-                </div>
-                <button
-                  onClick={() => setActiveVideo(null)}
-                  className="rounded-full p-2 text-white/60 hover:text-white hover:bg-white/10 transition-colors"
-                  aria-label="Close Modal"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              {/* YouTube Iframe Player */}
-              <div className="relative aspect-[16/9] w-full bg-black">
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${getYouTubeId(activeVideo.url)}?autoplay=1`}
-                  title={activeVideo.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="h-full w-full border-0"
-                />
-              </div>
-
-              {/* Modal Footer */}
-              <div className="flex items-center justify-between px-6 py-3 bg-neutral-950 text-xs font-mono text-white/50">
-                <span>{activeVideo.format}</span>
-                <a
-                  href={activeVideo.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-1 text-white hover:text-saffron"
-                >
-                  <span>Open directly on YouTube</span>
-                  <ArrowUpRight className="h-3 w-3" />
-                </a>
-              </div>
-
-            </div>
+        {/* Bottom Pagination Controls & Slide Description */}
+        <div className="mx-auto w-full max-w-7xl flex flex-col sm:flex-row items-center justify-between pt-3 border-t border-ink/5 text-xs font-mono text-ink/40 z-20 gap-2 sm:gap-0">
+          {/* Active Title Breadcrumb */}
+          <div className="flex items-center space-x-2 text-ink/70">
+            <span className="h-1.5 w-1.5 rounded-full bg-saffron" />
+            <span className="font-medium text-ink truncate max-w-[260px] sm:max-w-md">
+              {currentProject?.title}
+            </span>
           </div>
-        )}
+
+          {/* Indicators */}
+          <div className="flex items-center space-x-2">
+            {projects.map((p, i) => (
+              <span
+                key={p.id}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  activeIndex === i ? 'w-6 bg-saffron' : 'w-1.5 bg-ink/20'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
 
       </div>
     </section>

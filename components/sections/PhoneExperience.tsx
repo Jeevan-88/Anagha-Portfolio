@@ -1,154 +1,110 @@
 'use client';
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import Image from 'next/image';
 import { anaghaContent } from '@/content/anagha';
-import { Instagram, ArrowUpRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowUpRight, Instagram } from 'lucide-react';
 
 export default function PhoneExperience() {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const activeIndexRef = useRef(0);
-  const animValuesRef = useRef<{ scale: number; x: number; opacity: number; rotation: number }[]>([]);
-  const rafIdRef = useRef<number>(0);
+  const prevActiveIndexRef = useRef(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
   const [isInViewport, setIsInViewport] = useState(false);
-  const [headerOpacity, setHeaderOpacity] = useState(1);
 
   const screens = anaghaContent.reels;
-  const totalScreens = screens.length;
 
-  // Initialize animation values
-  useEffect(() => {
-    animValuesRef.current = screens.map(() => ({
-      scale: 0.7,
-      x: 0,
-      opacity: 0,
-      rotation: 0,
-    }));
-  }, [screens.length]);
-
-  // Viewport intersection observer
+  // Viewport intersection observer to pause videos when scrolled out of view
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => setIsInViewport(entry.isIntersecting),
+      ([entry]) => {
+        setIsInViewport(entry.isIntersecting);
+      },
       { threshold: 0.05 }
     );
+
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  // Scroll-driven animation loop using rAF
+  // Track scroll progress through this section
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const tick = () => {
-      rafIdRef.current = requestAnimationFrame(tick);
-
+    const handleScroll = () => {
       const container = containerRef.current;
       if (!container) return;
 
       const rect = container.getBoundingClientRect();
       const windowHeight = window.innerHeight;
       const totalDist = rect.height - windowHeight;
+
       if (totalDist <= 0) return;
 
       const current = -rect.top;
       const p = Math.max(0, Math.min(1, current / totalDist));
+      setScrollProgress(p);
 
-      // Map progress to active reel index
-      let newIndex: number;
+      // Map progress to active reel screen when phone is focused (between p = 0.18 and 0.88)
       if (p < 0.18) {
-        newIndex = 0;
+        setActiveScreenIndex(0);
       } else if (p >= 0.88) {
-        newIndex = totalScreens - 1;
+        setActiveScreenIndex(screens.length - 1);
       } else {
         const immersionProgress = (p - 0.18) / 0.70;
-        newIndex = Math.min(totalScreens - 1, Math.floor(immersionProgress * totalScreens));
-      }
-
-      if (newIndex !== activeIndexRef.current) {
-        activeIndexRef.current = newIndex;
-        setActiveScreenIndex(newIndex);
-      }
-
-      // Header fade
-      const entrance = Math.max(0, Math.min(1, (p - 0.05) / 0.15));
-      const exit = Math.max(0, Math.min(1, (p - 0.85) / 0.12));
-      const hOpacity = Math.max(0, entrance * (1 - exit));
-      setHeaderOpacity(hOpacity);
-
-      // Interpolate transform values for each reel
-      const active = activeIndexRef.current;
-      const lerpFactor = prefersReducedMotion ? 1 : 0.12;
-
-      for (let i = 0; i < totalScreens; i++) {
-        const diff = i - active;
-        const absDiff = Math.abs(diff);
-
-        let targetScale: number, targetX: number, targetOpacity: number, targetRotation: number;
-
-        if (absDiff === 0) {
-          targetScale = 1;
-          targetX = 0;
-          targetOpacity = 1;
-          targetRotation = 0;
-        } else if (absDiff === 1) {
-          targetScale = 0.82;
-          targetX = diff * 70;
-          targetOpacity = 0.35;
-          targetRotation = diff * -2.5;
-        } else if (absDiff === 2) {
-          targetScale = 0.72;
-          targetX = diff * 120;
-          targetOpacity = 0.15;
-          targetRotation = diff * -4;
-        } else {
-          targetScale = 0.65;
-          targetX = diff * 150;
-          targetOpacity = 0;
-          targetRotation = diff * -5;
-        }
-
-        const v = animValuesRef.current[i];
-        if (v) {
-          v.scale += (targetScale - v.scale) * lerpFactor;
-          v.x += (targetX - v.x) * lerpFactor;
-          v.opacity += (targetOpacity - v.opacity) * lerpFactor;
-          v.rotation += (targetRotation - v.rotation) * lerpFactor;
-
-          // Apply transforms directly to DOM (bypass React render)
-          const el = document.getElementById(`reel-card-${i}`);
-          if (el) {
-            el.style.transform = `translate3d(${v.x}px, 0, 0) scale(${v.scale}) rotate(${v.rotation}deg)`;
-            el.style.opacity = String(Math.max(0, v.opacity));
-            el.style.zIndex = String(absDiff === 0 ? 30 : 20 - absDiff);
-          }
-        }
+        const screenIdx = Math.min(
+          screens.length - 1,
+          Math.floor(immersionProgress * screens.length)
+        );
+        setActiveScreenIndex(screenIdx);
       }
     };
 
-    rafIdRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafIdRef.current);
-  }, [totalScreens]);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [screens.length]);
 
-  // Video playback lifecycle
+  // Interpolated animation values
+  const phoneEntrance = Math.max(0, Math.min(1, (scrollProgress - 0.15) / 0.2));
+  const phoneExit = Math.max(0, Math.min(1, (scrollProgress - 0.85) / 0.15));
+
+  const phoneScale = 0.75 + phoneEntrance * 0.25 - phoneExit * 0.2;
+  const phoneOpacity = Math.max(0, Math.min(1, phoneEntrance * 1.5)) * (1 - phoneExit * 0.9);
+  const phoneTranslateY = (1 - phoneEntrance) * 60 + phoneExit * 30;
+
+  // Video playback lifecycle: autoplay active slide, pause inactive, pause when out of view
   useEffect(() => {
+    const isPhoneVisible = isInViewport && phoneOpacity > 0.15;
+    const isIndexChanged = prevActiveIndexRef.current !== activeScreenIndex;
+    prevActiveIndexRef.current = activeScreenIndex;
+
     videoRefs.current.forEach((videoEl, idx) => {
       if (!videoEl) return;
 
-      if (idx === activeScreenIndex && isInViewport) {
+      if (idx === activeScreenIndex && isPhoneVisible) {
         videoEl.muted = true;
-        videoEl.currentTime = 0;
+        if (isIndexChanged) {
+          videoEl.currentTime = 0;
+        }
         const playPromise = videoEl.play();
-        if (playPromise) playPromise.catch(() => {});
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Autoplay catch handler
+          });
+        }
       } else {
-        if (!videoEl.paused) videoEl.pause();
+        if (!videoEl.paused) {
+          videoEl.pause();
+        }
       }
     });
-  }, [activeScreenIndex, isInViewport]);
+  }, [activeScreenIndex, isInViewport, phoneOpacity]);
+
+  // Background cards depth recession
+  const cardSpread = phoneEntrance * (1 - phoneExit);
+  const cardOpacity = 1 - cardSpread * 0.65;
 
   const currentScreen = screens[activeScreenIndex];
 
@@ -156,16 +112,13 @@ export default function PhoneExperience() {
     <section
       id="reels"
       ref={containerRef}
-      className="relative w-full min-h-[320vh] md:min-h-[400vh] bg-canvas"
+      className="relative w-full min-h-[320vh] md:min-h-[400vh] bg-canvas drafting-grid"
     >
-      {/* Sticky Viewport */}
+      {/* Sticky Viewport Stage */}
       <div className="sticky top-0 h-screen w-full flex flex-col justify-between overflow-hidden px-6 md:px-12 py-8">
-
-        {/* Editorial Header */}
-        <div
-          className="mx-auto w-full max-w-7xl flex flex-col md:flex-row md:items-end justify-between border-b border-ink/10 pb-4 z-20"
-          style={{ opacity: headerOpacity }}
-        >
+        
+        {/* Section Editorial Header */}
+        <div className="mx-auto w-full max-w-7xl flex flex-col md:flex-row md:items-end justify-between border-b border-ink/10 pb-4 z-20">
           <div>
             <span className="text-xs uppercase font-mono tracking-widest text-saffron block mb-1">
               05 · Short-Form Content
@@ -175,114 +128,238 @@ export default function PhoneExperience() {
             </h2>
           </div>
           <div className="flex items-center space-x-3 text-xs font-mono text-ink/40 mt-2 md:mt-0 uppercase">
-            <span>Scroll to Browse</span>
+            <span>Scroll Down To Navigate Feed</span>
             <span>·</span>
             <span className="text-saffron font-medium">{currentScreen.index}</span>
           </div>
         </div>
 
-        {/* Reel Stack Container */}
-        <div className="relative mx-auto my-auto w-full max-w-6xl flex items-center justify-center" style={{ height: 'calc(100vh - 200px)' }}>
-          {screens.map((screen, idx) => {
-            const isActive = idx === activeScreenIndex;
-            const isNearby = Math.abs(idx - activeScreenIndex) <= 2;
+        {/* 3D Spatial Theater Container */}
+        <div className="relative mx-auto my-auto h-[620px] w-full max-w-6xl perspective-container flex items-center justify-center">
+          
+          {/* ========================================================
+              BACKGROUND SUBSTRATE CARDS (Real work assets floating with depth)
+              ======================================================== */}
+          <div
+            className="pointer-events-none absolute inset-0 transition-opacity duration-300 flex items-center justify-center"
+            style={{ opacity: cardOpacity }}
+          >
+            {/* Substrate Card 1: Top-Left (Neil & Momo Persian Rose) */}
+            <div
+              className="absolute left-[2%] sm:left-[6%] top-[8%] w-48 sm:w-56 aspect-[4/3] rounded-2xl bg-white p-2.5 shadow-sm border border-ink/10 transition-transform duration-500 ease-out"
+              style={{
+                transform: `translate3d(${-cardSpread * 140}px, ${-cardSpread * 50}px, ${-cardSpread * 160}px) rotate(-3deg)`,
+              }}
+            >
+              <div className="relative h-full w-full overflow-hidden rounded-xl bg-canvas-subtle">
+                <Image
+                  src="/assets/projects/neil-momo-01.webp"
+                  alt="Neil & Momo packaging"
+                  fill
+                  sizes="240px"
+                  className="object-cover"
+                />
+              </div>
+            </div>
 
-            return (
+            {/* Substrate Card 2: Top-Right (ANA Architects Culture) */}
+            <div
+              className="absolute right-[3%] sm:right-[8%] top-[10%] w-48 sm:w-60 aspect-[4/3] rounded-2xl bg-white p-2.5 shadow-sm border border-ink/10 transition-transform duration-500 ease-out"
+              style={{
+                transform: `translate3d(${cardSpread * 140}px, ${-cardSpread * 40}px, ${-cardSpread * 150}px) rotate(3deg)`,
+              }}
+            >
+              <div className="relative h-full w-full overflow-hidden rounded-xl bg-canvas-subtle">
+                <Image
+                  src="/assets/projects/ana_reel_2.jpg"
+                  alt="ANA Architects studio culture"
+                  fill
+                  sizes="240px"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Substrate Card 3: Bottom-Left (MUWCI Campus) */}
+            <div
+              className="absolute left-[3%] sm:left-[8%] bottom-[10%] w-52 sm:w-64 aspect-[16/10] rounded-2xl bg-white p-2.5 shadow-sm border border-ink/10 transition-transform duration-500 ease-out"
+              style={{
+                transform: `translate3d(${-cardSpread * 150}px, ${cardSpread * 60}px, ${-cardSpread * 180}px) rotate(2deg)`,
+              }}
+            >
+              <div className="relative h-full w-full overflow-hidden rounded-xl bg-canvas-subtle">
+                <Image
+                  src="/assets/projects/muwci.jpg"
+                  alt="MUWCI documentary frame"
+                  fill
+                  sizes="260px"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Substrate Card 4: Bottom-Right (Bharat Forge CSR) */}
+            <div
+              className="absolute right-[2%] sm:right-[7%] bottom-[12%] w-52 sm:w-64 aspect-[16/10] rounded-2xl bg-white p-2.5 shadow-sm border border-ink/10 transition-transform duration-500 ease-out"
+              style={{
+                transform: `translate3d(${cardSpread * 150}px, ${cardSpread * 70}px, ${-cardSpread * 170}px) rotate(-3deg)`,
+              }}
+            >
+              <div className="relative h-full w-full overflow-hidden rounded-xl bg-canvas-subtle">
+                <Image
+                  src="/assets/projects/bharat_forge.jpg"
+                  alt="Bharat Forge CSR documentary"
+                  fill
+                  sizes="260px"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================================
+              THE SINGLE SMARTPHONE OBJECT (Thin black chassis silhouette)
+              ======================================================== */}
+          <div
+            className="relative z-30 transition-transform duration-300 ease-out"
+            style={{
+              transform: `translate3d(0, ${phoneTranslateY}px, 0) scale(${phoneScale})`,
+              opacity: phoneOpacity,
+            }}
+          >
+            {/* The Smartphone Frame */}
+            <div className="relative w-[300px] sm:w-[330px] md:w-[350px] h-[570px] sm:h-[610px] rounded-[44px] sm:rounded-[48px] border-[3px] border-[#181818] bg-canvas shadow-[0_24px_70px_rgba(0,0,0,0.14)] p-3 overflow-hidden flex flex-col justify-between">
+              
+              {/* Speaker & Dynamic Notch Bar */}
+              <div className="relative w-full flex items-center justify-between px-4 pt-1 pb-2 text-[11px] font-mono text-ink/70 z-20">
+                <span>9:41</span>
+                <div className="h-4 w-20 rounded-full bg-ink/90 mx-auto" />
+                <div className="flex items-center space-x-1 text-[10px]">
+                  <span>5G</span>
+                </div>
+              </div>
+
+              {/* Inside Screen Container: Clickable Direct Link to Reel */}
               <a
-                key={screen.id}
-                id={`reel-card-${idx}`}
-                href={screen.url}
+                href={currentScreen.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group/reel absolute flex items-center justify-center"
-                style={{
-                  opacity: 0,
-                  transform: 'scale(0.7)',
-                  willChange: 'transform, opacity',
-                  pointerEvents: isActive ? 'auto' : 'none',
-                }}
+                className="group/reel relative flex-1 w-full overflow-hidden rounded-[32px] sm:rounded-[36px] bg-black flex flex-col justify-between p-3.5 border border-ink/5 focus:outline-none"
               >
-                {/* Vertical Reel Frame */}
-                <div className={`relative overflow-hidden rounded-2xl border transition-shadow duration-500 ${
-                  isActive
-                    ? 'border-white/20 shadow-[0_8px_60px_rgba(0,0,0,0.25)]'
-                    : 'border-white/8 shadow-lg shadow-black/10'
-                }`}
-                  style={{ width: 'clamp(220px, 28vw, 320px)', aspectRatio: '9/16' }}
-                >
-                  {/* Video */}
-                  <video
-                    ref={(el) => { videoRefs.current[idx] = el; }}
-                    src={screen.video}
-                    poster={screen.thumbnail}
-                    muted
-                    loop
-                    playsInline
-                    preload={isActive ? 'auto' : isNearby ? 'metadata' : 'none'}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
+                {/* Header inside screen */}
+                <div className="relative z-10 flex items-center justify-between pb-2 border-b border-white/10 text-white">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-saffron font-medium">
+                    {currentScreen.client}
+                  </span>
+                  <span className="text-[10px] font-mono text-white/50">
+                    {currentScreen.category}
+                  </span>
+                </div>
 
-                  {/* Bottom Gradient for Text */}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+                {/* Media Presentation: Real Reel Local MP4 Videos */}
+                <div className="relative my-auto aspect-[9/13] w-full overflow-hidden rounded-2xl bg-neutral-950 shadow-inner">
+                  {screens.map((screen, idx) => {
+                    const isActive = idx === activeScreenIndex;
+                    const isNearby = Math.abs(idx - activeScreenIndex) <= 1;
 
-                  {/* Content Overlay (active reel only via CSS) */}
-                  <div className={`absolute inset-0 flex flex-col justify-between p-4 transition-opacity duration-300 ${
-                    isActive ? 'opacity-100' : 'opacity-0'
-                  }`}>
-                    {/* Top Bar */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-saffron font-medium drop-shadow-sm">
-                        {screen.client}
-                      </span>
-                      <span className="text-[10px] font-mono text-white/50 drop-shadow-sm">
-                        {screen.category}
-                      </span>
-                    </div>
+                    return (
+                      <div
+                        key={screen.id}
+                        className={`absolute inset-0 transition-opacity duration-300 ${
+                          isActive ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
+                        }`}
+                      >
+                        <video
+                          ref={(el) => {
+                            videoRefs.current[idx] = el;
+                          }}
+                          src={screen.video}
+                          poster={screen.thumbnail}
+                          muted
+                          loop
+                          playsInline
+                          preload={isActive ? 'auto' : isNearby ? 'metadata' : 'none'}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    );
+                  })}
 
-                    {/* Bottom Info */}
-                    <div>
-                      <p className="font-display text-sm sm:text-base font-medium text-white leading-tight drop-shadow-md">
-                        {screen.title}
-                      </p>
-                      <p className="text-[10px] font-mono text-white/70 mt-1 drop-shadow-sm">
-                        {screen.subtitle}
-                      </p>
-                    </div>
-                  </div>
+                  {/* Gradient Overlay for Text Readability */}
+                  <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
 
-                  {/* Hover: Open on Instagram */}
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 group-hover/reel:opacity-100 transition-opacity duration-300 bg-black/30 z-20">
+                  {/* Play / Instagram Link Trigger Indicator */}
+                  <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover/reel:opacity-100 transition-opacity duration-300 bg-black/30">
                     <div className="flex items-center space-x-2 rounded-full bg-white/95 px-3 py-1.5 text-xs font-mono text-ink font-medium shadow-md">
                       <Instagram className="h-3.5 w-3.5 text-saffron" />
                       <span>Open on Instagram</span>
                       <ArrowUpRight className="h-3 w-3" />
                     </div>
                   </div>
+
+                  {/* Overlaid Title & Subtitle */}
+                  <div className="pointer-events-none absolute bottom-3 left-3 right-3 z-20 text-white">
+                    <p className="font-display text-base sm:text-lg font-medium tracking-wide leading-tight">
+                      {currentScreen.title}
+                    </p>
+                    <p className="text-[10px] font-mono text-white/75 mt-1">
+                      {currentScreen.subtitle}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Bottom App Bar */}
+                <div className="relative z-10 pt-2 flex items-center justify-between border-t border-white/10 text-[10px] font-mono text-white/60">
+                  <div className="flex items-center space-x-1.5 text-saffron">
+                    <span className="h-1.5 w-1.5 rounded-full bg-saffron" />
+                    <span>INSTAGRAM REEL</span>
+                  </div>
+                  <span className="text-white/40">{currentScreen.index}</span>
                 </div>
               </a>
-            );
-          })}
+
+              {/* Bottom Home Indicator */}
+              <div className="w-full flex justify-center py-1.5">
+                <div className="h-1 w-24 rounded-full bg-ink/70" />
+              </div>
+
+            </div>
+          </div>
+
         </div>
 
-        {/* Dot Indicators */}
-        <div
-          className="mx-auto w-full max-w-7xl flex items-center justify-center pt-3 z-20"
-          style={{ opacity: headerOpacity }}
-        >
-          <div className="flex items-center space-x-1.5">
+        {/* Mobile Interactive Screen Switcher Controls */}
+        <div className="mx-auto w-full max-w-7xl flex items-center justify-between pt-2 border-t border-ink/5 text-xs font-mono text-ink/40 z-20">
+          <div className="flex items-center space-x-1.5 sm:space-x-2">
             {screens.map((_, i) => (
               <button
                 key={i}
-                onClick={() => {
-                  activeIndexRef.current = i;
-                  setActiveScreenIndex(i);
-                }}
+                onClick={() => setActiveScreenIndex(i)}
                 className={`h-1.5 rounded-full shrink-0 transition-all duration-300 ${
-                  activeScreenIndex === i ? 'w-5 bg-saffron' : 'w-1.5 bg-ink/20'
+                  activeScreenIndex === i ? 'w-5 sm:w-6 bg-saffron' : 'w-1.5 sm:w-2 bg-ink/20'
                 }`}
                 aria-label={`Go to Reel ${i + 1}`}
               />
             ))}
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setActiveScreenIndex((prev) => Math.max(0, prev - 1))}
+              disabled={activeScreenIndex === 0}
+              className="p-1.5 rounded-full border border-ink/10 text-ink/60 hover:text-ink disabled:opacity-30"
+              aria-label="Previous Reel"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setActiveScreenIndex((prev) => Math.min(screens.length - 1, prev + 1))}
+              disabled={activeScreenIndex === screens.length - 1}
+              className="p-1.5 rounded-full border border-ink/10 text-ink/60 hover:text-ink disabled:opacity-30"
+              aria-label="Next Reel"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
 

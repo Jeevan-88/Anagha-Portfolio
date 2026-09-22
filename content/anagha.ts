@@ -74,6 +74,7 @@ export interface VideoProject {
   context: string;
   url: string;
   thumbnail: string;
+  video?: string;
   isShort?: boolean;
 }
 
