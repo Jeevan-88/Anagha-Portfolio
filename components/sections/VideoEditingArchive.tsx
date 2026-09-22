@@ -136,6 +136,7 @@ export default function VideoEditingArchive() {
             const opacity = Math.max(0.12, 1 - absOffset * 0.65);
             const zIndex = Math.round(30 - absOffset * 10);
             const isCenter = absOffset < 0.45;
+            const isNearby = absOffset <= 1.2;
 
             return (
               <div
@@ -157,7 +158,16 @@ export default function VideoEditingArchive() {
                 >
                   {/* Media Content */}
                   <div className="relative h-full w-full overflow-hidden bg-neutral-950">
-                    {project.video ? (
+                    {/* Instant Poster Image: Guaranteed first visible frame */}
+                    <Image
+                      src={project.thumbnail}
+                      alt={project.title}
+                      fill
+                      sizes="(max-width: 768px) 330px, 370px"
+                      className="h-full w-full object-cover"
+                    />
+
+                    {project.video && (isCenter || isNearby) && (
                       <video
                         ref={(el) => {
                           videoRefs.current[idx] = el;
@@ -167,16 +177,8 @@ export default function VideoEditingArchive() {
                         muted
                         loop
                         playsInline
-                        preload={isCenter ? 'auto' : 'metadata'}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <Image
-                        src={project.thumbnail}
-                        alt={project.title}
-                        fill
-                        sizes="(max-width: 768px) 330px, 370px"
-                        className="h-full w-full object-cover"
+                        preload="metadata"
+                        className="absolute inset-0 h-full w-full object-cover"
                       />
                     )}
 

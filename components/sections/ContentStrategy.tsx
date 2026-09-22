@@ -18,21 +18,38 @@ function PillarVideoCard({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const cardRef = useRef<HTMLAnchorElement>(null);
+  const [isNear, setIsNear] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
+    // Observer 1: Near viewport - prepare metadata
+    const nearObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsNear(true);
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    // Observer 2: Visible in viewport - play/pause
+    const visibleObserver = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting && entry.intersectionRatio >= 0.35);
       },
       { threshold: [0.1, 0.35, 0.6] }
     );
 
-    observer.observe(el);
-    return () => observer.disconnect();
+    nearObserver.observe(el);
+    visibleObserver.observe(el);
+
+    return () => {
+      nearObserver.disconnect();
+      visibleObserver.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -62,7 +79,16 @@ function PillarVideoCard({
     >
       {/* 9:16 Vertical Video Frame matching Reels language */}
       <div className="relative aspect-[9/15] w-full overflow-hidden bg-neutral-950">
-        {ex.video ? (
+        {/* Instant Poster Image: Guaranteed first visible frame */}
+        <Image
+          src={ex.thumbnail}
+          alt={ex.title}
+          fill
+          sizes="(max-width: 768px) 100vw, 360px"
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+
+        {ex.video && isNear && (
           <video
             ref={videoRef}
             src={ex.video}
@@ -71,15 +97,7 @@ function PillarVideoCard({
             loop
             playsInline
             preload="metadata"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-        ) : (
-          <Image
-            src={ex.thumbnail}
-            alt={ex.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 360px"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         )}
 

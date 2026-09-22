@@ -269,18 +269,29 @@ export default function PhoneExperience() {
                           isActive ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
                         }`}
                       >
-                        <video
-                          ref={(el) => {
-                            videoRefs.current[idx] = el;
-                          }}
-                          src={screen.video}
-                          poster={screen.thumbnail}
-                          muted
-                          loop
-                          playsInline
-                          preload={isActive ? 'auto' : isNearby ? 'metadata' : 'none'}
-                          className="h-full w-full object-cover"
+                        {/* Instant Poster Image: Zero-delay visual frame */}
+                        <Image
+                          src={screen.thumbnail}
+                          alt={screen.title}
+                          fill
+                          sizes="(max-width: 640px) 300px, 340px"
+                          priority={idx === 0}
+                          className="object-cover"
                         />
+                        {(isActive || isNearby) && (
+                          <video
+                            ref={(el) => {
+                              videoRefs.current[idx] = el;
+                            }}
+                            src={screen.video}
+                            poster={screen.thumbnail}
+                            muted
+                            loop
+                            playsInline
+                            preload="metadata"
+                            className="absolute inset-0 h-full w-full object-cover"
+                          />
+                        )}
                       </div>
                     );
                   })}

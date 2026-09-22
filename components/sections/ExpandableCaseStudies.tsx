@@ -20,11 +20,24 @@ function EditorialWorkVisual({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isNear, setIsNear] = useState(false);
 
   useEffect(() => {
     if (!visual?.video) return;
 
-    const observer = new IntersectionObserver(
+    const el = containerRef.current;
+    if (!el) return;
+
+    const nearObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsNear(true);
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    const playObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const video = videoRef.current;
@@ -40,11 +53,13 @@ function EditorialWorkVisual({
       { threshold: [0.1, 0.3, 0.6] }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
+    nearObserver.observe(el);
+    playObserver.observe(el);
 
-    return () => observer.disconnect();
+    return () => {
+      nearObserver.disconnect();
+      playObserver.disconnect();
+    };
   }, [visual?.video]);
 
   if (!visual) return null;
@@ -55,7 +70,16 @@ function EditorialWorkVisual({
       onClick={onClick}
       className="group relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-2xl overflow-hidden bg-canvas-subtle border border-ink/10 cursor-pointer shadow-xs transition-all duration-300 hover:border-ink/30 my-8 sm:my-10 select-none"
     >
-      {visual.video ? (
+      {/* Permanent Image Backdrop: Instant first frame with zero blank state */}
+      <Image
+        src={visual.src}
+        alt={visual.alt}
+        fill
+        sizes="(max-width: 1200px) 100vw, 1200px"
+        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+      />
+
+      {visual.video && isNear && (
         <video
           ref={videoRef}
           src={visual.video}
@@ -64,15 +88,7 @@ function EditorialWorkVisual({
           loop
           playsInline
           preload="metadata"
-          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-        />
-      ) : (
-        <Image
-          src={visual.src}
-          alt={visual.alt}
-          fill
-          sizes="(max-width: 1200px) 100vw, 1200px"
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
         />
       )}
 

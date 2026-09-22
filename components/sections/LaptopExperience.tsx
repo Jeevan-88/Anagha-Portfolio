@@ -94,6 +94,7 @@ export default function LaptopExperience() {
     video.muted = true;
     video.playsInline = true;
     video.setAttribute('playsinline', '');
+    video.preload = 'metadata';
     videoElementRef.current = video;
 
     const videoTexture = new THREE.VideoTexture(video);

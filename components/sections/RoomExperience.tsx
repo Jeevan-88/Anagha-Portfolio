@@ -73,7 +73,7 @@ export default function RoomExperience() {
     video.setAttribute('playsinline', '');
     video.setAttribute('muted', '');
     video.setAttribute('autoplay', '');
-    video.preload = 'auto';
+    video.preload = 'metadata';
     video.style.position = 'fixed';
     video.style.top = '-9999px';
     video.style.left = '-9999px';
