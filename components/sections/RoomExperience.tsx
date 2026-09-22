@@ -1,5 +1,7 @@
 'use client';
 
+import { VERCEL_BLOB_VIDEOS } from '@/config/videoAssets';
+
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -65,7 +67,7 @@ export default function RoomExperience() {
 
     // 5. Video Element setup (exact requested file)
     const video = document.createElement('video');
-    video.src = '/assets/projects/WhatsApp Video 2026-09-22 at 2.00.15 PM.mp4';
+    video.src = VERCEL_BLOB_VIDEOS.room_tv;
     video.crossOrigin = 'anonymous';
     video.loop = true;
     video.muted = true;

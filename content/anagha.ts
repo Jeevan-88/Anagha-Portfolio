@@ -1,3 +1,4 @@
+import { VERCEL_BLOB_VIDEOS } from '@/config/videoAssets';
 export interface BrandItem {
   id: string;
   name: string;
@@ -301,7 +302,7 @@ export const anaghaContent: AnaghaContent = {
       urlLabel: "Visit ANA Instagram Profile",
       heroVisual: {
         src: "/assets/projects/ana_reel_1.jpg",
-        video: "/assets/projects/ana_reel_01.mp4",
+        video: VERCEL_BLOB_VIDEOS.ana_reel_01,
         alt: "ANA Architects Work",
         caption: "Annual function speech curation reel & employee-centred architecture communication",
       },
@@ -360,7 +361,7 @@ export const anaghaContent: AnaghaContent = {
       urlLabel: "Explore Neil & Momo Website",
       heroVisual: {
         src: "/assets/projects/neil-momo-01.webp",
-        video: "/assets/projects/neil_momo_reel_01.mp4",
+        video: VERCEL_BLOB_VIDEOS.neil_momo_reel_01,
         alt: "Neil & Momo Brand Work",
         caption: "Botanical soap wrap packaging, visual identity & educational video series",
       },
@@ -427,7 +428,7 @@ export const anaghaContent: AnaghaContent = {
       urlLabel: "Visit Root Cause on Instagram",
       heroVisual: {
         src: "/assets/projects/rc_reel_1.jpg",
-        video: "/assets/projects/root_cause_reel_01.mp4",
+        video: VERCEL_BLOB_VIDEOS.root_cause_reel_01,
         alt: "Root Cause Podcast Short-Form Content",
         caption: "Repurposing long-form podcast conversations into high-retention clips under 60s",
       },
@@ -496,7 +497,7 @@ export const anaghaContent: AnaghaContent = {
       urlLabel: "Visit Dravyas on Instagram",
       heroVisual: {
         src: "/assets/projects/campaign-posts-01.webp",
-        video: "/assets/projects/reel_general_01.mp4",
+        video: VERCEL_BLOB_VIDEOS.reel_general_01,
         alt: "Dravyas Natural Wellness",
         caption: "Natural formulation identity, ingredient education & brand storytelling",
       },
@@ -524,7 +525,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Keynote & Speech Highlights",
       subtitle: "Curating Milestone Moments & Vision",
       thumbnail: "/assets/projects/ana_reel_1.jpg",
-      video: "/assets/projects/ana_reel_01.mp4",
+      video: VERCEL_BLOB_VIDEOS.ana_reel_01,
       url: "https://www.instagram.com/reel/DaVKQIkR0aL/?stkn=MWZoeWxoNm52cTczcw==",
     },
     {
@@ -535,7 +536,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Team Perspective & Studio Culture",
       subtitle: "Employee-Centred Architectural Storytelling",
       thumbnail: "/assets/projects/ana_reel_2.jpg",
-      video: "/assets/projects/ana_reel_02.mp4",
+      video: VERCEL_BLOB_VIDEOS.ana_reel_02,
       url: "https://www.instagram.com/reel/DartbBVM6kW/?stkn=OGM3bjdpdjlwZ2h2",
     },
     {
@@ -546,7 +547,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Botanical Formulations & Process",
       subtitle: "Cold-Process Artisanal Skincare Story",
       thumbnail: "/assets/projects/nm_strat_1.jpg",
-      video: "/assets/projects/neil_momo_reel_01.mp4",
+      video: VERCEL_BLOB_VIDEOS.neil_momo_reel_01,
       url: "https://www.instagram.com/reel/DaXvmAgNZ_d/?stkn=MXhpMTlnd3A0a2NvOQ==",
     },
     {
@@ -557,7 +558,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Addressing Skin Doubts with Swapnil",
       subtitle: "Educational Q&A Short-Form Series",
       thumbnail: "/assets/projects/nm_strat_2.jpg",
-      video: "/assets/projects/neil_momo_reel_02.mp4",
+      video: VERCEL_BLOB_VIDEOS.neil_momo_reel_02,
       url: "https://www.instagram.com/reel/DHI9Ax1NNDZ/?stkn=cHM2ODUwNHVneGp3",
     },
     {
@@ -568,7 +569,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Root Factors & Integrative Health",
       subtitle: "High-Retention Clip Under 60 Seconds",
       thumbnail: "/assets/projects/rc_reel_1.jpg",
-      video: "/assets/projects/root_cause_reel_01.mp4",
+      video: VERCEL_BLOB_VIDEOS.root_cause_reel_01,
       url: "https://www.instagram.com/reel/DbnkDyuIRg9/?stkn=bmo3ZWkyM2M1cHE0OQ==",
     },
     {
@@ -579,7 +580,7 @@ export const anaghaContent: AnaghaContent = {
       title: "First 3-Second Attention Hook",
       subtitle: "Distilling Hour-Long Insight into Crisp Reel",
       thumbnail: "/assets/projects/rc_reel_2.jpg",
-      video: "/assets/projects/root_cause_reel_02.mp4",
+      video: VERCEL_BLOB_VIDEOS.root_cause_reel_02,
       url: "https://www.instagram.com/reel/DU8J2Q2iNEm/?stkn=MXhiZmtwaW43eThubA==",
     },
     {
@@ -590,7 +591,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Episodic Health Takeaways",
       subtitle: "Audience Retention & Discussion Clip",
       thumbnail: "/assets/projects/rc_reel_3.jpg",
-      video: "/assets/projects/root_cause_reel_03.mp4",
+      video: VERCEL_BLOB_VIDEOS.root_cause_reel_03,
       url: "https://www.instagram.com/reel/DUx7xVIiFcy/?stkn=MTQ0MTlodGtzc21y",
     },
     {
@@ -601,7 +602,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Botanical Formulations",
       subtitle: "Persian Rose & Honey Multani Mitti Ritual",
       thumbnail: "/assets/projects/reel_1.jpg",
-      video: "/assets/projects/reel_general_01.mp4",
+      video: VERCEL_BLOB_VIDEOS.reel_general_01,
       url: "https://www.instagram.com/reel/DdTwWyDRV2w/?stkn=MTdtN3JiZTUwNWExZw==",
     },
     {
@@ -612,7 +613,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Health & Root Factors",
       subtitle: "Episodic Highlight: 3-Second Hook to Key Insight",
       thumbnail: "/assets/projects/reel_2.jpg",
-      video: "/assets/projects/reel_general_02.mp4",
+      video: VERCEL_BLOB_VIDEOS.reel_general_02,
       url: "https://www.instagram.com/reel/DZhw25nN4hQ/?stkn=Z2xhbTMxMDdvcjQy",
     },
     {
@@ -623,7 +624,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Campaign Visual Story",
       subtitle: "Dynamic Pacing & Visual Narrative",
       thumbnail: "/assets/projects/reel_3.jpg",
-      video: "/assets/projects/reel_general_03.mp4",
+      video: VERCEL_BLOB_VIDEOS.reel_general_03,
       url: "https://www.instagram.com/reel/DcF2AixtitB/?stkn=ZmxzYXZma2Y3MGdo",
     },
     {
@@ -634,7 +635,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Curated Question & Answer",
       subtitle: "Addressing Core Audience Curiosities",
       thumbnail: "/assets/projects/reel_4.jpg",
-      video: "/assets/projects/reel_general_04.mp4",
+      video: VERCEL_BLOB_VIDEOS.reel_general_04,
       url: "https://www.instagram.com/reel/Dap3idQTkou/?stkn=",
     },
     {
@@ -645,7 +646,7 @@ export const anaghaContent: AnaghaContent = {
       title: "Movement & Moments",
       subtitle: "Short-Form Edit with Strong Engagement",
       thumbnail: "/assets/projects/reel_5.jpg",
-      video: "/assets/projects/reel_general_05.mp4",
+      video: VERCEL_BLOB_VIDEOS.reel_general_05,
       url: "https://www.instagram.com/reel/C-kh-Soobid/?stkn=bW5lMTh0N3RlcjZm",
     },
   ],
@@ -668,21 +669,21 @@ export const anaghaContent: AnaghaContent = {
           title: "Conversational Insight 01",
           url: "https://www.instagram.com/reel/DbnkDyuIRg9/?stkn=bmo3ZWkyM2M1cHE0OQ==",
           thumbnail: "/assets/projects/rc_reel_1.jpg",
-          video: "/assets/projects/root_cause_reel_01.mp4",
+          video: VERCEL_BLOB_VIDEOS.root_cause_reel_01,
         },
         {
           id: "rc-ex-2",
           title: "Conversational Insight 02",
           url: "https://www.instagram.com/reel/DU8J2Q2iNEm/?stkn=MXhiZmtwaW43eThubA==",
           thumbnail: "/assets/projects/rc_reel_2.jpg",
-          video: "/assets/projects/root_cause_reel_02.mp4",
+          video: VERCEL_BLOB_VIDEOS.root_cause_reel_02,
         },
         {
           id: "rc-ex-3",
           title: "Conversational Insight 03",
           url: "https://www.instagram.com/reel/DUx7xVIiFcy/?stkn=MTQ0MTlodGtzc21y",
           thumbnail: "/assets/projects/rc_reel_3.jpg",
-          video: "/assets/projects/root_cause_reel_03.mp4",
+          video: VERCEL_BLOB_VIDEOS.root_cause_reel_03,
         },
       ],
     },
@@ -703,14 +704,14 @@ export const anaghaContent: AnaghaContent = {
           title: "Curiosity Topic 01",
           url: "https://www.instagram.com/reel/DaXvmAgNZ_d/?stkn=MXhpMTlnd3A0a2NvOQ==",
           thumbnail: "/assets/projects/nm_strat_1.jpg",
-          video: "/assets/projects/neil_momo_reel_01.mp4",
+          video: VERCEL_BLOB_VIDEOS.neil_momo_reel_01,
         },
         {
           id: "nm-ex-2",
           title: "Curiosity Topic 02",
           url: "https://www.instagram.com/reel/DHI9Ax1NNDZ/?stkn=cHM2ODUwNHVneGp3",
           thumbnail: "/assets/projects/nm_strat_2.jpg",
-          video: "/assets/projects/neil_momo_reel_02.mp4",
+          video: VERCEL_BLOB_VIDEOS.neil_momo_reel_02,
         },
       ],
     },
@@ -731,7 +732,7 @@ export const anaghaContent: AnaghaContent = {
           title: "Dravyas Official Social Archive",
           url: "https://www.instagram.com/dravyas.in?stkn=cDY5cmdwMmQxOXF2",
           thumbnail: "/assets/projects/campaign-posts-01.webp",
-          video: "/assets/projects/reel_general_01.mp4",
+          video: VERCEL_BLOB_VIDEOS.reel_general_01,
         },
       ],
     },
@@ -782,7 +783,7 @@ export const anaghaContent: AnaghaContent = {
     client: "Neil & Momo",
     role: "Website Design & Development",
     url: "https://www.neilandmomo.com/",
-    videoSrc: "/assets/video/nmwebsite.mp4",
+    videoSrc: VERCEL_BLOB_VIDEOS.nmwebsite,
     description: "I designed and developed the official Neil & Momo website (neilandmomo.com), establishing an intuitive e-commerce architecture. The site features category-based product navigation, skin-type recommendation pathways, clean ingredient transparency, and seamless checkout.",
     sectionsShown: [
       "Brand Hero & Botanical Storytelling",
