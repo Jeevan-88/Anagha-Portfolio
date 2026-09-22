@@ -37,7 +37,7 @@ export default function Footer() {
         {/* Identity & Location */}
         <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 text-center sm:text-left">
           <span className="font-display text-lg text-white font-medium tracking-wider">
-            {anaghaContent.identity.fullName.toUpperCase()}
+            {anaghaContent.meta.name.toUpperCase()}
           </span>
           <span className="hidden sm:inline-block text-white/20">|</span>
           <span className="text-white/60">

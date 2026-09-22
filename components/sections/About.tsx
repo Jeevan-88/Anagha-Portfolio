@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -20,90 +20,84 @@ export default function About() {
             </h2>
           </div>
           <p className="text-xs font-mono text-ink/40 tracking-wider mt-4 md:mt-0 uppercase">
-            Who I Am &amp; How I Work
+            Who I Am &amp; What I Do
           </p>
         </div>
 
         {/* Two-Column Editorial Spread */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           
-          {/* Left Column: Portrait Documentation Frame */}
+          {/* Left Column: Portrait Frame */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-canvas-subtle border border-ink/10 shadow-xs">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-canvas-subtle border border-ink/10 shadow-sm">
               <Image
-                src={anaghaContent.identity.introCardImage}
-                alt="Anagha Mhaiskar portfolio documentation"
+                src={anaghaContent.about.portrait}
+                alt="Anagha Mhaiskar"
                 fill
                 sizes="(max-width: 768px) 100vw, 500px"
-                className="object-cover"
+                className="object-cover object-top"
               />
             </div>
 
-            {/* Grounded Human Statement */}
-            <p className="font-display text-2xl sm:text-3xl text-ink font-light leading-snug italic border-l-2 border-saffron pl-5 py-1">
-              &ldquo;I turn briefs into work people can actually understand, see, and engage with, balancing strong visual systems with daily execution.&rdquo;
-            </p>
+            {/* Current Role Callout */}
+            <div className="rounded-xl bg-canvas-subtle p-5 border border-ink/5">
+              <p className="text-xs font-mono uppercase tracking-widest text-saffron font-medium mb-1">
+                Current Role
+              </p>
+              <p className="text-sm font-medium text-ink">
+                Social Media Manager &amp; Content Strategist at ANA Architects
+              </p>
+            </div>
           </div>
 
-          {/* Right Column: First-Person Human Story & Concrete Areas */}
+          {/* Right Column: First-Person Human Story & Core Disciplines */}
           <div className="lg:col-span-7 space-y-8">
-            <div className="space-y-4 text-base sm:text-lg text-ink/80 leading-relaxed font-light">
-              <p className="text-xl sm:text-2xl text-ink font-normal leading-relaxed">
-                My work sits between social media, design, content, video and web. I focus on finding the balance between an engaging narrative and a structured strategy.
+            
+            {/* Direct Supplied Quote for ANA Architects */}
+            <div className="space-y-4">
+              <p className="font-display text-xl sm:text-2xl text-ink font-normal leading-relaxed border-l-2 border-saffron pl-5 py-1">
+                &ldquo;{anaghaContent.about.currentRoleQuote}&rdquo;
               </p>
 
-              <p>
-                Currently managing social media at <strong>Neil &amp; Momo Organic Skincare</strong> and having designed web and graphic collateral at <strong>Dnnovate Technologies</strong>, I work across the planning, content, and visual sides of digital communication. My projects range from physical soap packaging wraps and Figma e-commerce layouts to fast-paced short-form video reels.
-              </p>
-
-              <p>
-                I enjoy transforming complex briefs or founder concepts into clear content pillars, scheduled formats, and reliable publishing calendars so the feed maintains a purposeful direction.
+              <p className="text-base sm:text-lg text-ink/80 leading-relaxed font-light">
+                {anaghaContent.about.extendedBio}
               </p>
             </div>
 
-            {/* Concrete Skill Groups: Pure Craft, No Buzzwords */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-ink/10">
-              <div className="space-y-2">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-saffron font-medium">
-                  Social Media &amp; Planning
-                </h3>
-                <p className="text-sm text-ink/70 font-light leading-relaxed">
-                  Monthly content calendars, feed curation, reel concepts, copywriting, and direct customer CRM interaction.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-ink font-medium">
-                  Graphic &amp; Packaging Design
-                </h3>
-                <p className="text-sm text-ink/70 font-light leading-relaxed">
-                  Botanical soap packaging labels, merchandise mockups, print brochures, brand logo suites, and visiting cards.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-ink font-medium">
-                  Video &amp; Motion
-                </h3>
-                <p className="text-sm text-ink/70 font-light leading-relaxed">
-                  Editing vertical reels, apparel try-on cuts, motion typography sequences, and promotional video clips.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-xs font-mono uppercase tracking-wider text-leaf font-medium">
-                  Web &amp; Prototyping
-                </h3>
-                <p className="text-sm text-ink/70 font-light leading-relaxed">
-                  Responsive product UI prototyping in Figma, WordPress website setup, layout updates, and digital asset maintenance.
-                </p>
+            {/* Core Disciplines List */}
+            <div className="pt-6 border-t border-ink/10">
+              <h3 className="text-xs font-mono uppercase tracking-wider text-ink/50 font-medium mb-4">
+                Core Disciplines
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {anaghaContent.about.disciplines.map((d) => (
+                  <div key={d} className="flex items-center space-x-3 p-3 rounded-lg bg-canvas-subtle/70 border border-ink/5 text-xs font-medium text-ink">
+                    <span className="h-1.5 w-1.5 rounded-full bg-saffron" />
+                    <span>{d}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Grounding Academic Note */}
-            <div className="pt-4 border-t border-ink/10 text-xs font-mono text-ink/40 flex items-center justify-between">
+            {/* Strategic Values */}
+            <div className="space-y-4 pt-4 border-t border-ink/10">
+              <h3 className="text-xs font-mono uppercase tracking-wider text-ink/50 font-medium">
+                How I Approach The Work
+              </h3>
+              <div className="space-y-3">
+                {anaghaContent.about.values.map((v) => (
+                  <div key={v.title} className="p-4 rounded-xl border border-ink/10 bg-white">
+                    <h4 className="text-sm font-medium text-ink mb-1">{v.title}</h4>
+                    <p className="text-xs text-ink/70 leading-relaxed font-light">{v.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Grounding Info */}
+            <div className="pt-4 border-t border-ink/10 text-xs font-mono text-ink/40 flex flex-wrap items-center justify-between gap-2">
               <span>B.Tech Information Technology, SVPCET</span>
-              <span>Based in Maharashtra, India · Working globally</span>
+              <span>Based in Pune, India · Working Globally</span>
             </div>
           </div>
 

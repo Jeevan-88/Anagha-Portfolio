@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { anaghaContent } from '@/content/anagha';
-import { Calendar, MapPin, Briefcase } from 'lucide-react';
+import { Calendar, MapPin } from 'lucide-react';
 
 export default function ExperienceTimeline() {
   const experiences = anaghaContent.experience;
@@ -15,14 +15,14 @@ export default function ExperienceTimeline() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 pb-6 border-b border-ink/10">
           <div>
             <span className="text-xs uppercase font-mono tracking-widest text-saffron block mb-2">
-              09 · Work History
+              12 · Career Trajectory
             </span>
             <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-ink">
               Where I Have Worked
             </h2>
           </div>
-          <p className="text-xs font-mono text-ink/40 tracking-wider mt-4 md:mt-0">
-            Documented roles and verified responsibilities
+          <p className="text-xs font-mono text-ink/40 tracking-wider mt-4 md:mt-0 uppercase">
+            Documented Roles &amp; Responsibilities
           </p>
         </div>
 
@@ -31,15 +31,21 @@ export default function ExperienceTimeline() {
           {experiences.map((exp) => (
             <div
               key={exp.company}
-              className="rounded-3xl bg-white p-8 sm:p-10 md:p-12 border border-ink/10 shadow-[0_8px_30px_rgba(0,0,0,0.02)] space-y-6"
+              className={`rounded-3xl bg-white p-8 sm:p-10 md:p-12 border transition-all duration-300 ${
+                exp.isCurrent
+                  ? 'border-saffron/40 shadow-[0_8px_30px_rgba(206,107,51,0.06)]'
+                  : 'border-ink/10 shadow-[0_8px_30px_rgba(0,0,0,0.02)]'
+              }`}
             >
               {/* Header: Company, Role, Type & Dates */}
               <div className="flex flex-col md:flex-row md:items-start justify-between border-b border-ink/10 pb-6 gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center space-x-3 mb-1">
-                    <span className="rounded-full bg-canvas-subtle px-2.5 py-0.5 text-[10px] font-mono text-ink/70 border border-ink/5">
-                      {exp.type}
-                    </span>
+                    {exp.isCurrent && (
+                      <span className="rounded-full bg-saffron/15 text-saffron px-2.5 py-0.5 text-[10px] font-mono font-medium tracking-wider uppercase">
+                        Current Role
+                      </span>
+                    )}
                   </div>
                   <h3 className="font-display text-3xl sm:text-4xl font-medium text-ink">
                     {exp.company}
@@ -49,7 +55,7 @@ export default function ExperienceTimeline() {
                   </p>
                 </div>
 
-                <div className="text-xs font-mono text-ink/50 md:text-right space-y-1.5 flex-shrink-0">
+                <div className="text-xs font-mono text-ink/50 md:text-right space-y-1.5 shrink-0">
                   <div className="flex items-center md:justify-end space-x-1.5">
                     <Calendar className="h-3.5 w-3.5 text-saffron" />
                     <span>{exp.period}</span>
@@ -61,15 +67,10 @@ export default function ExperienceTimeline() {
                 </div>
               </div>
 
-              {/* Concise Meaningful Role Summary */}
-              <p className="text-sm sm:text-base text-ink/80 font-light leading-relaxed">
-                {exp.summary}
-              </p>
-
               {/* Responsibilities */}
-              <div className="space-y-3 pt-2">
+              <div className="space-y-3 pt-4">
                 <span className="text-[11px] font-mono uppercase tracking-widest text-ink/40 block">
-                  Core Responsibilities
+                  Documented Responsibilities
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   {exp.responsibilities.map((resp, i) => (

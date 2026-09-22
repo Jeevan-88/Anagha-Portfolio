@@ -13,7 +13,6 @@ export default function Navbar() {
       setScrolled(window.scrollY > 40);
       const aboutEl = document.getElementById('about');
       if (aboutEl) {
-        // Logo appears subtly only when scroll reaches About section
         setShowBrandName(window.scrollY >= aboutEl.offsetTop - 140);
       } else {
         setShowBrandName(window.scrollY > 600);
@@ -26,11 +25,14 @@ export default function Navbar() {
 
   const navItems = [
     { label: 'ABOUT', href: '#about' },
+    { label: 'CLIENTS', href: '#brands' },
+    { label: 'WORK', href: '#case-studies' },
     { label: 'REELS', href: '#reels' },
-    { label: 'APPROACH', href: '#capabilities' },
-    { label: 'TOOLS', href: '#laptop-experience' },
+    { label: 'STRATEGY', href: '#content-strategy' },
+    { label: 'VIDEO', href: '#video-editing' },
+    { label: 'WEB', href: '#laptop-experience' },
+    { label: 'TOOLS', href: '#tools' },
     { label: 'SERVICES', href: '#services' },
-    { label: 'EXPERIENCE', href: '#experience' },
     { label: 'CONTACT', href: '#contact' },
   ];
 
@@ -39,12 +41,12 @@ export default function Navbar() {
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
           scrolled
-            ? 'bg-[#FBF9F5]/85 py-4 backdrop-blur-md border-b border-ink/5 shadow-[0_4px_24px_rgba(0,0,0,0.02)]'
+            ? 'bg-[#FBF9F5]/90 py-4 backdrop-blur-md border-b border-ink/5 shadow-[0_4px_24px_rgba(0,0,0,0.02)]'
             : 'bg-transparent py-6 md:py-8'
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 md:px-12">
-          {/* Brand Mark: Hidden during Hero & dispersion; fades in smoothly when About is reached */}
+          {/* Brand Mark: Fades in smoothly once About is reached */}
           <a
             href="#top"
             className={`text-ink transition-all duration-700 ease-out hover:opacity-75 ${
@@ -59,7 +61,7 @@ export default function Navbar() {
           </a>
 
           {/* Desktop Nav Items */}
-          <nav className="hidden md:flex items-center space-x-8 text-xs font-medium tracking-wider text-ink/75">
+          <nav className="hidden lg:flex items-center space-x-6 text-[11px] font-medium tracking-wider text-ink/75">
             {navItems.map((item) => (
               <a
                 key={item.label}
@@ -72,7 +74,7 @@ export default function Navbar() {
           </nav>
 
           {/* Direct CTA */}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <a
               href="#contact"
               className="inline-flex items-center rounded-full border border-ink/20 px-4 py-1.5 text-xs font-medium tracking-wide text-ink transition-all duration-300 hover:border-ink hover:bg-ink hover:text-canvas"
@@ -84,7 +86,7 @@ export default function Navbar() {
           {/* Mobile Clean Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="flex flex-col space-y-1.5 p-2 md:hidden text-ink focus:outline-none"
+            className="flex flex-col space-y-1.5 p-2 lg:hidden text-ink focus:outline-none"
             aria-label="Toggle Navigation"
           >
             <span
@@ -108,29 +110,29 @@ export default function Navbar() {
 
       {/* Mobile Clean Full-Screen Menu */}
       <div
-        className={`fixed inset-0 z-30 flex flex-col justify-between bg-[#FBF9F5] px-8 py-24 transition-all duration-500 md:hidden ${
+        className={`fixed inset-0 z-30 flex flex-col justify-between bg-[#FBF9F5] px-8 py-24 transition-all duration-500 lg:hidden overflow-y-auto ${
           mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="flex flex-col space-y-6">
+        <div className="flex flex-col space-y-5">
           <p className="text-xs uppercase tracking-widest text-ink/40 font-mono">Navigation</p>
           {navItems.map((item, idx) => (
             <a
               key={item.label}
               href={item.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="font-display text-3xl font-medium tracking-wide text-ink transition-colors hover:text-saffron"
-              style={{ transitionDelay: `${idx * 40}ms` }}
+              className="font-display text-2xl font-medium tracking-wide text-ink transition-colors hover:text-saffron"
+              style={{ transitionDelay: `${idx * 30}ms` }}
             >
               {item.label}
             </a>
           ))}
         </div>
 
-        <div className="border-t border-ink/10 pt-6">
+        <div className="border-t border-ink/10 pt-6 mt-8">
           <a
             href={`mailto:${anaghaContent.contact.email}`}
-            className="font-display text-lg text-saffron underline decoration-saffron/40 underline-offset-4"
+            className="font-display text-base text-saffron underline decoration-saffron/40 underline-offset-4"
           >
             {anaghaContent.contact.email}
           </a>

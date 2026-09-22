@@ -1,4 +1,4 @@
-export interface BrandItem {
+﻿content = """export interface BrandItem {
   id: string;
   name: string;
   mark: string;
@@ -759,3 +759,8 @@ export const anaghaContent: AnaghaContent = {
     availability: "Currently accepting select retainers and creative projects.",
   },
 };
+"""
+
+with open(r'C:\Users\Jeevan Yadav\.gemini\antigravity\scratch\anagha-portfolio\content\anagha.ts', 'w', encoding='utf-8') as f:
+    f.write(content)
+print('Successfully wrote content/anagha.ts')

@@ -6,10 +6,14 @@ import Footer from '@/components/layout/Footer';
 import CustomCursor from '@/components/ui/CustomCursor';
 import Hero from '@/components/sections/Hero';
 import About from '@/components/sections/About';
-
+import ClientsIndex from '@/components/sections/ClientsIndex';
+import ExpandableCaseStudies from '@/components/sections/ExpandableCaseStudies';
 import PhoneExperience from '@/components/sections/PhoneExperience';
-import Capabilities from '@/components/sections/Capabilities';
+import ContentStrategy from '@/components/sections/ContentStrategy';
+import VideoEditingArchive from '@/components/sections/VideoEditingArchive';
 import LaptopExperience from '@/components/sections/LaptopExperience';
+import Capabilities from '@/components/sections/Capabilities';
+import Tools from '@/components/sections/Tools';
 import Services from '@/components/sections/Services';
 import ExperienceTimeline from '@/components/sections/ExperienceTimeline';
 import Education from '@/components/sections/Education';
@@ -20,7 +24,6 @@ export default function Home() {
   useEffect(() => {
     let lenis: any = null;
 
-    // Check if user prefers reduced motion
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (!prefersReducedMotion) {
@@ -58,39 +61,52 @@ export default function Home() {
       {/* Precision Custom Cursor for Desktop */}
       <CustomCursor />
 
-      {/* Navigation */}
+      {/* Persistent Navigation */}
       <Navbar />
 
-      {/* 01 · Signature Particle Identity into Editorial Hero */}
+      {/* 01 · Hero: Grand Typographic Particle Masthead into Editorial Stage */}
       <Hero />
 
-      {/* 02 · Editorial About & Authentic Story */}
+      {/* 02 · About: Professional Profile & Grounded ANA Architects Statement */}
       <About />
 
+      {/* 03 · Brands & Clients: Curated Professional Client & Work Index */}
+      <ClientsIndex />
 
+      {/* 04 · Selected Work: Expandable Deep Case Studies (ANA Architects & Neil & Momo) */}
+      <ExpandableCaseStudies />
 
-      {/* 05 · Dedicated Single-Phone Video Reels Feed */}
+      {/* 05 · Reels & Short-Form Content: Single-Phone Reel Feed */}
       <PhoneExperience />
 
-      {/* 06 · Strategic Approach: What I Bring to the Table */}
-      <Capabilities />
+      {/* 06 · Content Strategy: Repurposing Workflow & Topic Curation */}
+      <ContentStrategy />
 
-      {/* 07 · Cinematic 3D Studio Laptop Experience: Tools & Applied Work */}
+      {/* 07 · Video Editing: Long-Form Documentary, Campus Life & Compilations */}
+      <VideoEditingArchive />
+
+      {/* 08 · Web Design: Cinematic 3D Laptop Walkthrough of Neil & Momo Website */}
       <LaptopExperience />
 
-      {/* 08 · Service Menu: Retainers, Singles & Custom Scope */}
+      {/* 09 · Capabilities: What I Bring to the Table */}
+      <Capabilities />
+
+      {/* 10 · Tools & Creative Production Stack */}
+      <Tools />
+
+      {/* 11 · Services Menu: Retainers, Singles & Custom Scope */}
       <Services />
 
-      {/* 09 · Verified Career Trajectory: Work History */}
+      {/* 12 · Experience: Documented Career History */}
       <ExperienceTimeline />
 
-      {/* 10 · Academic Foundation */}
+      {/* 13 · Academic Education Foundation */}
       <Education />
 
-      {/* 11 · Epilogue: Particle Dissolution & Film-Like Contact */}
+      {/* 14 · Contact & Direct Communication */}
       <Contact />
 
-      {/* Concluding Footer */}
+      {/* Footer */}
       <Footer />
     </main>
   );

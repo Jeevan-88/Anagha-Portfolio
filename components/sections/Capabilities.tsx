@@ -1,15 +1,13 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { anaghaContent } from '@/content/anagha';
 import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
 
 export default function Capabilities() {
-  const [selectedCapId, setSelectedCapId] = useState<string>(anaghaContent.capabilities[0].id);
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
-  const selectedCap =
-    anaghaContent.capabilities.find((c) => c.id === selectedCapId) ||
-    anaghaContent.capabilities[0];
+  const selectedCap = anaghaContent.capabilities[selectedIndex] || anaghaContent.capabilities[0];
 
   return (
     <section id="capabilities" className="relative w-full py-24 md:py-32 px-6 md:px-12 bg-canvas drafting-grid-dense">
@@ -19,14 +17,14 @@ export default function Capabilities() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 pb-6 border-b border-ink/10">
           <div>
             <span className="text-xs uppercase font-mono tracking-widest text-saffron block mb-2">
-              06 · Strategic Approach
+              09 · Strategic Approach
             </span>
             <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-ink">
               What I Bring to the Table
             </h2>
           </div>
           <p className="text-xs font-mono text-ink/40 tracking-wider mt-4 md:mt-0 uppercase">
-            How I approach the work
+            5 Strategic Pillars
           </p>
         </div>
 
@@ -35,13 +33,13 @@ export default function Capabilities() {
           
           {/* Left: Typographic List of Pillars */}
           <div className="lg:col-span-6 flex flex-col divide-y divide-ink/10 border-y border-ink/10">
-            {anaghaContent.capabilities.map((cap) => {
-              const isSelected = cap.id === selectedCapId;
+            {anaghaContent.capabilities.map((cap, idx) => {
+              const isSelected = idx === selectedIndex;
               return (
                 <div
-                  key={cap.id}
-                  onClick={() => setSelectedCapId(cap.id)}
-                  onMouseEnter={() => setSelectedCapId(cap.id)}
+                  key={cap.number}
+                  onClick={() => setSelectedIndex(idx)}
+                  onMouseEnter={() => setSelectedIndex(idx)}
                   className={`group cursor-pointer py-6 md:py-7 transition-all duration-300 ${
                     isSelected ? 'pl-4 md:pl-6 bg-white/70' : 'hover:pl-2'
                   }`}
@@ -63,9 +61,6 @@ export default function Capabilities() {
                         >
                           {cap.title}
                         </h3>
-                        <p className="text-xs text-ink/50 font-light mt-1">
-                          {cap.thesis}
-                        </p>
                       </div>
                     </div>
 
@@ -86,13 +81,9 @@ export default function Capabilities() {
                       <p className="text-sm text-ink/80 font-light leading-relaxed">
                         {cap.description}
                       </p>
-                      <div className="space-y-2 pt-1">
-                        {cap.points.map((point, pIdx) => (
-                          <div key={pIdx} className="flex items-start space-x-2 text-xs text-ink/70">
-                            <span className="text-saffron mt-0.5">•</span>
-                            <span>{point}</span>
-                          </div>
-                        ))}
+                      <div className="flex items-center space-x-2 text-xs text-saffron font-mono">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        <span>{cap.outcome}</span>
                       </div>
                     </div>
                   )}
@@ -113,9 +104,6 @@ export default function Capabilities() {
                 <h3 className="font-display text-3xl font-medium text-ink tracking-tight">
                   {selectedCap.title}
                 </h3>
-                <p className="text-base text-ink/60 font-light italic">
-                  &ldquo;{selectedCap.thesis}&rdquo;
-                </p>
               </div>
 
               {/* Detailed Explanation */}
@@ -128,20 +116,16 @@ export default function Capabilities() {
                 </p>
               </div>
 
-              {/* Concrete Application Points */}
-              <div className="rounded-2xl bg-canvas p-6 border border-ink/5 space-y-3">
+              {/* Concrete Outcome */}
+              <div className="rounded-2xl bg-canvas p-6 border border-ink/5 space-y-2">
                 <span className="text-[11px] font-mono uppercase tracking-widest text-ink/50 block">
-                  Practical Execution
+                  Delivered Outcome
                 </span>
-                <div className="space-y-2.5">
-                  {selectedCap.points.map((point, idx) => (
-                    <div key={idx} className="flex items-start space-x-3 text-sm text-ink/75 font-light">
-                      <div className="mt-1 h-3.5 w-3.5 rounded-full bg-saffron/15 text-saffron flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 className="h-2.5 w-2.5" />
-                      </div>
-                      <span>{point}</span>
-                    </div>
-                  ))}
+                <div className="flex items-start space-x-3 text-sm text-ink/85 font-medium">
+                  <div className="mt-0.5 h-4 w-4 rounded-full bg-saffron/15 text-saffron flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="h-3 w-3" />
+                  </div>
+                  <span>{selectedCap.outcome}</span>
                 </div>
               </div>
 

@@ -14,6 +14,12 @@ export default function Contact() {
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const socialLinks = [
+    { platform: 'LinkedIn', url: anaghaContent.contact.linkedin },
+    { platform: 'Instagram (ANA)', url: anaghaContent.contact.instagram },
+    { platform: 'Email', url: `mailto:${anaghaContent.contact.email}` },
+  ];
+
   return (
     <section id="contact" className="relative w-full py-28 md:py-36 px-6 md:px-12 bg-canvas overflow-hidden drafting-grid">
       <div className="mx-auto max-w-7xl">
@@ -28,13 +34,13 @@ export default function Contact() {
           
           <div className="space-y-3">
             <span className="text-xs uppercase font-mono tracking-widest text-saffron block">
-              Contact
+              14 · Direct Contact
             </span>
             <h2 className="font-display text-4xl sm:text-6xl md:text-7xl font-medium tracking-tight text-ink leading-tight">
-              {anaghaContent.contact.heading}
+              Let&apos;s Build Together
             </h2>
             <p className="text-base sm:text-lg text-ink/70 font-light max-w-xl mx-auto">
-              {anaghaContent.contact.subheading}
+              {anaghaContent.contact.statement}
             </p>
           </div>
 
@@ -76,15 +82,15 @@ export default function Contact() {
           <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-mono text-ink/50 pt-2">
             <div className="flex items-center space-x-1.5">
               <MapPin className="h-3.5 w-3.5 text-saffron" />
-              <span>{anaghaContent.contact.locationNotice}</span>
+              <span>Based in Pune, India · Available Worldwide</span>
             </div>
             <span>·</span>
-            <span>Replies usually within 24 hours</span>
+            <span>{anaghaContent.contact.availability}</span>
           </div>
 
           {/* Verified Social Channels */}
           <div className="pt-8 border-t border-ink/10 flex flex-wrap items-center justify-center gap-4">
-            {anaghaContent.contact.socialLinks.map((link) => (
+            {socialLinks.map((link) => (
               <a
                 key={link.platform}
                 href={link.url}
