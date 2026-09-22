@@ -40,27 +40,27 @@ export default function RoomExperience() {
     canvasContainer.appendChild(renderer.domElement);
 
     // 4. Dramatic, Atmospheric Cinematic Lighting for Black Backdrop
-    // Ambient light - keep subtle and moody so black surroundings look rich
-    const ambient = new THREE.AmbientLight(0xf5eedc, 1.1);
+    // Ambient light - keep low and moody so the room sits inside a dark cinematic environment
+    const ambient = new THREE.AmbientLight(0xd4cfc5, 0.45);
     scene.add(ambient);
 
     // Key directional light creating soft shadows across furniture
-    const keyLight = new THREE.DirectionalLight(0xfff6ea, 2.2);
+    const keyLight = new THREE.DirectionalLight(0xfff6ea, 1.4);
     keyLight.position.set(2.5, 4.5, 3.5);
     scene.add(keyLight);
 
     // Warm moody fill light
-    const warmFill = new THREE.DirectionalLight(0xce6b33, 0.7);
+    const warmFill = new THREE.DirectionalLight(0xce6b33, 0.4);
     warmFill.position.set(-3.0, 2.0, 2.0);
     scene.add(warmFill);
 
     // Rim light to separate the edges of the room and TV from the black void
-    const rimLight = new THREE.DirectionalLight(0x6080a0, 0.9);
+    const rimLight = new THREE.DirectionalLight(0x6080a0, 0.6);
     rimLight.position.set(1.0, 3.0, -3.0);
     scene.add(rimLight);
 
     // Dynamic TV phosphor point light casting amber/cyan glow
-    const tvGlowLight = new THREE.PointLight(0xffecd0, 0.2, 5);
+    const tvGlowLight = new THREE.PointLight(0xffecd0, 0.3, 5);
     scene.add(tvGlowLight);
 
     // 5. Video Element setup (exact requested file)
@@ -71,35 +71,46 @@ export default function RoomExperience() {
     video.muted = true;
     video.playsInline = true;
     video.setAttribute('playsinline', '');
+    video.setAttribute('muted', '');
+    video.setAttribute('autoplay', '');
+    video.preload = 'auto';
+    video.style.position = 'fixed';
+    video.style.top = '-9999px';
+    video.style.left = '-9999px';
+    video.style.width = '1px';
+    video.style.height = '1px';
+    video.style.opacity = '0.01';
+    video.style.pointerEvents = 'none';
+    document.body.appendChild(video);
 
     const videoTexture = new THREE.VideoTexture(video);
     videoTexture.colorSpace = THREE.SRGBColorSpace;
     videoTexture.minFilter = THREE.LinearFilter;
     videoTexture.magFilter = THREE.LinearFilter;
+    videoTexture.generateMipmaps = false;
 
     // Dedicated material strictly clipped to the screen surface
     const screenMaterial = new THREE.MeshBasicMaterial({
       map: videoTexture,
+      toneMapped: false,
       side: THREE.FrontSide,
+      depthTest: true,
+      depthWrite: true,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2,
     });
 
     // 6. Model & Screen Plane Nodes
     const roomRoot = new THREE.Group();
     scene.add(roomRoot);
 
-    // We create the screen plane inside roomRoot so all scale and positions match the room exactly!
-    // The screen face coordinates from GLB vertex analysis:
-    // Screen quad bounded by v51 (left=0.2071, bottom=0.7189) to v53 (right=0.6093, top=1.0529), z = 0.1384
-    // Screen dimensions: width = 0.4022, height = 0.3340
-    // Screen center: x = 0.4082, y = 0.8859, z = 0.1386
-    const screenWidth = 0.4022;
-    const screenHeight = 0.3340;
-    const screenCenter = new THREE.Vector3(0.4082, 0.8859, 0.1390);
-
+    // Screen dimensions covering CRT glass snugly within the bezel
+    const screenWidth = 0.48;
+    const screenHeight = 0.36;
     const screenGeometry = new THREE.PlaneGeometry(screenWidth, screenHeight);
     const screenMesh = new THREE.Mesh(screenGeometry, screenMaterial);
-    screenMesh.position.copy(screenCenter);
-    roomRoot.add(screenMesh);
+    screenMesh.renderOrder = 999;
 
     // Target vectors in World coordinates
     let targetWorldLookAt = new THREE.Vector3();
@@ -113,14 +124,18 @@ export default function RoomExperience() {
       '/assets/models/pokemon_firered_-_players_room.glb',
       (gltf) => {
         const model = gltf.scene;
+        let tvMesh: THREE.Mesh | null = null;
 
-        // Clean up any unlit shader quirks and ensure double-sided room rendering
+        // Traverse to find TV mesh and ensure clean double-sided room rendering
         model.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.castShadow = false;
             child.receiveShadow = false;
             if (child.material) {
               child.material.side = THREE.DoubleSide;
+            }
+            if (child.name.toLowerCase().includes('tv') && !child.name.toLowerCase().includes('stand')) {
+              tvMesh = child;
             }
           }
         });
@@ -129,48 +144,48 @@ export default function RoomExperience() {
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         model.position.set(-center.x, -center.y, -center.z);
-
-        // Adjust screen mesh position relative to room center
-        screenMesh.position.set(
-          screenCenter.x - center.x,
-          screenCenter.y - center.y,
-          screenCenter.z - center.z
-        );
-
         roomRoot.add(model);
+
+        // Attach screenMesh directly to tvMesh so all transforms and hierarchy are exact!
+        // Local CRT center: x=0.4082, y=0.8859, and z=0.1625 (sits right on the front glass face)
+        if (tvMesh) {
+          screenMesh.position.set(0.4082, 0.8859, 0.1625);
+          (tvMesh as THREE.Mesh).add(screenMesh);
+        } else {
+          screenMesh.position.set(0.4082 - center.x, 0.8859 - center.y, 0.1625 - center.z);
+          roomRoot.add(screenMesh);
+        }
+
+        // Force full world matrix update
+        roomRoot.updateMatrixWorld(true);
 
         // Calculate world position of TV screen center
         screenMesh.getWorldPosition(targetWorldLookAt);
 
+        // Extract orientation of the screen
+        const screenQuat = new THREE.Quaternion();
+        screenMesh.getWorldQuaternion(screenQuat);
+        const screenNormal = new THREE.Vector3(0, 0, 1).applyQuaternion(screenQuat).normalize();
+        const screenRight = new THREE.Vector3(1, 0, 0).applyQuaternion(screenQuat).normalize();
+        const screenUp = new THREE.Vector3(0, 1, 0).applyQuaternion(screenQuat).normalize();
+
         // Position dynamic point light right in front of the screen
-        tvGlowLight.position.set(
-          targetWorldLookAt.x,
-          targetWorldLookAt.y,
-          targetWorldLookAt.z + 0.3
-        );
+        tvGlowLight.position.copy(targetWorldLookAt).addScaledVector(screenNormal, 0.25);
 
         // Camera Positions:
         // Final position (camEndPos):
-        // Directly in front of the TV along the +Z normal axis!
-        // Perfectly centered on X and Y, with Z pulled back so the screen takes 50-70% of viewport.
-        // At fov=38 (vertical rad = ~0.663 rad), screen height of ~0.334 fills 60% of vertical FOV
-        // when distance d ≈ (0.334 / 0.60) / (2 * tan(19 deg)) ≈ 0.556 / 0.688 ≈ 0.81 units.
-        const endDistance = isMobile ? 1.05 : 0.84;
-        camEndPos.set(
-          targetWorldLookAt.x,
-          targetWorldLookAt.y,
-          targetWorldLookAt.z + endDistance
-        );
+        // Directly in front of the TV along the perpendicular screen normal axis!
+        // Distance 1.18 allows the entire TV housing/bezel and stand to be fully framed with breathing room.
+        const endDistance = isMobile ? 1.40 : 1.18;
+        camEndPos.copy(targetWorldLookAt).addScaledVector(screenNormal, endDistance);
 
         // Starting position (camStartPos):
-        // Standing INSIDE the room looking towards the TV/computer.
-        // Slightly elevated and stepped back into the room entrance/stairs threshold.
-        // Facing generally towards the TV, not an extreme diagonal isometric view.
-        camStartPos.set(
-          targetWorldLookAt.x + 0.45,
-          targetWorldLookAt.y + 0.85,
-          targetWorldLookAt.z + 3.4
-        );
+        // Standing INSIDE the room looking towards the TV.
+        // Stepped back into the room entrance, elevated slightly to eye level.
+        camStartPos.copy(targetWorldLookAt)
+          .addScaledVector(screenNormal, 2.9)
+          .addScaledVector(screenRight, 0.40)
+          .addScaledVector(screenUp, 0.65);
 
         camera.position.copy(camStartPos);
         camera.lookAt(targetWorldLookAt);
@@ -178,7 +193,7 @@ export default function RoomExperience() {
         isSceneReady = true;
         setIsLoaded(true);
 
-        // Start video immediately muted so texture is ready
+        // Start video immediately
         video.play().catch(() => {});
       },
       undefined,
@@ -186,6 +201,16 @@ export default function RoomExperience() {
         console.error('Error loading room GLB:', err);
       }
     );
+
+    // Ensure playback triggers on first scroll or touch
+    const handleUserInteraction = () => {
+      if (video.paused) {
+        video.play().catch(() => {});
+      }
+    };
+    window.addEventListener('scroll', handleUserInteraction, { passive: true });
+    window.addEventListener('touchstart', handleUserInteraction, { passive: true });
+    window.addEventListener('click', handleUserInteraction, { passive: true });
 
     // 8. Animation Loop driven by Scroll Progress
     let animFrameId: number;
@@ -222,7 +247,6 @@ export default function RoomExperience() {
 
         // LookAt target:
         // Always locked precisely onto the screen center throughout the move
-        // As camera approaches straight-on Z axis, the orientation automatically aligns perpendicular to the screen!
         const targetLook = targetWorldLookAt.clone();
 
         // High quality lerp for butter-smooth momentum
@@ -236,15 +260,12 @@ export default function RoomExperience() {
         const glowIntensity = THREE.MathUtils.lerp(0.4, 2.2, smoothProgress);
         tvGlowLight.intensity = glowIntensity;
 
-        // Manage video play/pause lifecycle
-        if (sp >= 0.02 && sp <= 0.98) {
-          if (video.paused) {
-            video.play().catch(() => {});
-          }
-        } else {
-          if (!video.paused) {
-            video.pause();
-          }
+        // Keep video playing and texture fresh
+        if (video.paused && sp > 0.005) {
+          video.play().catch(() => {});
+        }
+        if (video.readyState >= 2) {
+          videoTexture.needsUpdate = true;
         }
       }
 
@@ -269,12 +290,18 @@ export default function RoomExperience() {
     return () => {
       cancelAnimationFrame(animFrameId);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleUserInteraction);
+      window.removeEventListener('touchstart', handleUserInteraction);
+      window.removeEventListener('click', handleUserInteraction);
       renderer.dispose();
       screenMaterial.dispose();
       screenGeometry.dispose();
       videoTexture.dispose();
       video.pause();
       video.src = '';
+      if (video.parentNode) {
+        video.parentNode.removeChild(video);
+      }
       if (renderer.domElement && canvasContainer.contains(renderer.domElement)) {
         canvasContainer.removeChild(renderer.domElement);
       }
@@ -285,7 +312,7 @@ export default function RoomExperience() {
     <section
       id="room-experience"
       ref={containerRef}
-      className="relative w-full min-h-[300vh] bg-[#050505]"
+      className="relative z-50 w-full min-h-[300vh] bg-[#050505]"
     >
       {/* Pinned Cinematic Stage */}
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#050505]">
