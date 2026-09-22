@@ -26,8 +26,8 @@ export const VERCEL_BLOB_VIDEOS = {
 
   // Storefront & 3D Interactive Video Experiences
   nmwebsite: 'https://sdpbnfippzoecrrh.public.blob.vercel-storage.com/nmwebsite.mp4',
-  room_tv: 'https://sdpbnfippzoecrrh.public.blob.vercel-storage.com/WhatsApp%2BVideo%2B2026-09-22%2Bat%2B2.00.15%2BPM.mp4',
-  graduation_highlights: 'https://sdpbnfippzoecrrh.public.blob.vercel-storage.com/2025%2BGraduation%2BCeremony%2BHighlights_1080p.mp4',
+  room_tv: 'https://sdpbnfippzoecrrh.public.blob.vercel-storage.com/WhatsApp%20Video%202026-09-22%20at%202.00.15%20PM.mp4',
+  graduation_highlights: 'https://sdpbnfippzoecrrh.public.blob.vercel-storage.com/2025%20Graduation%20Ceremony%20Highlights_1080p.mp4',
 } as const;
 
 /**
